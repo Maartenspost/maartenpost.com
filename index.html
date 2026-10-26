@@ -27,7 +27,7 @@
   --sage:#5E7350;--sage-ink:#1C2A14;
   --bush:#2C3626;--bush-ink:#9DB07E;
   --olive:#5C6E21;
-  --linen:#FBF8F6;--linen-ink:#1B1B18;
+  --linen:#F3EEE5;--linen-ink:#1B1B18;
   --font:"Inter Tight","Helvetica Neue",Helvetica,Arial,sans-serif;
   color-scheme:light;
 }
@@ -53,6 +53,10 @@ h1.name{font-weight:420;letter-spacing:-.055em;line-height:.86}
 
 /* Bands */
 .band{padding-block:40px 110px}
+/* Paper: subtle printed-on-card texture on every flat colour surface (not on photos) */
+:root{--paper:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='d' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  .34 0 0 0 -.14'/%3E%3C/filter%3E%3Cfilter id='l' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  .34 0 0 0 -.14'/%3E%3C/filter%3E%3Cfilter id='m' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.0133' numOctaves='4' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  .12 0 0 0 -.045'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23m%29'/%3E%3Crect width='100%25' height='100%25' filter='url%28%23d%29'/%3E%3Crect width='100%25' height='100%25' filter='url%28%23l%29'/%3E%3C/svg%3E")}
+.name .dot{color:#F4EFE6;margin-left:.035em}
+
 .dark{background:var(--bush);color:var(--bush-ink)}
 .light{background:var(--linen);color:var(--linen-ink)}
 .rule{border:0;border-top:1.5px solid currentColor;margin:0}
@@ -234,6 +238,9 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
 .viewer .stage img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--sage-ink);color:var(--linen);padding:10px 16px;font-size:14px;z-index:40;animation:fade .2s}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+
+/* Paper texture last, so it layers on top of each background colour */
+body,.band,.dark,.light,nav,body::before,.overlay,.ppage,.pbar,.viewer{background-image:var(--paper)!important;background-size:300px 300px!important}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -246,19 +253,19 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
 </svg>
 
 <nav aria-label="Main"><div class="wrap">
-  <a class="home" href="#top" aria-label="Maarten Post, back to top"><span class="name">Maarten Post.</span></a>
+  <a class="home" href="#top" aria-label="Maarten Post, back to top"><span class="name">Maarten Post<span class="dot">.</span></span></a>
   <ul id="navl"><li><a href="#streaming">Streaming</a></li><li><a href="#television">Television</a></li><li><a href="#commercial">Commercial</a></li><li><a href="#snapshots">Snapshots</a></li><li><a href="#about">About</a></li><li><a href="#contact">Contact</a></li></ul>
   <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="overlay">Menu</button>
 </div></nav>
 <div class="overlay" id="overlay" hidden><div class="wrap">
-  <div class="top"><span class="lead name">Maarten Post.</span><button class="menu-btn" style="display:block" id="closeBtn" type="button">Close</button></div>
+  <div class="top"><span class="lead name">Maarten Post<span class="dot">.</span></span><button class="menu-btn" style="display:block" id="closeBtn" type="button">Close</button></div>
   <ul><li><a href="#streaming">Streaming</a></li><li><a href="#television">Television</a></li><li><a href="#commercial">Commercial</a></li><li><a href="#snapshots">Snapshots</a></li><li><a href="#about">About</a></li><li><a href="#contact">Contact</a></li></ul>
   <p class="small" style="margin-top:auto">Director · Amsterdam · Cape Town</p>
 </div></div>
 
 <header class="hero" id="top"><div class="wrap">
   <div class="hero-grid">
-    <h1 class="big name"><span class="w">Maarten</span><br><span class="w">Post.</span></h1>
+    <h1 class="big name"><span class="w">Maarten</span><br><span class="w">Post<span class="dot">.</span></span></h1>
     <div class="side lead">
       <p class="where" aria-label="Amsterdam and Cape Town"><span>Amsterdam</span><span>Cape Town</span></p>
       <p>Independent director with over 20 years of experience in the television industry</p>
