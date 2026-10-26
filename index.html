@@ -1,5 +1,10 @@
-<title>Maarten Post Director</title>
-<meta name="description" content="Maarten Post is een multicamera-regisseur uit Bussum met ruim twintig jaar televisie-ervaring, bekend van De Verraders, Holland&#39;s Got Talent, Boer Zoekt Vrouw en The Tribute: Battle of the Bands voor o.a. RTL, NPO, KRO-NCRV, SBS6, Videoland en Amazon Prime.">
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Maarten Post · Director</title>
+<meta name="description" content="Independent director with over 20 years of experience in the television industry. Based between Amsterdam and Cape Town.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Maarten Post · Director">
 <meta property="og:description" content="Independent director with over 20 years of experience in the television industry. Based between Amsterdam and Cape Town.">
@@ -213,12 +218,12 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
 .pbar{position:sticky;top:0;z-index:2;background:var(--sage);padding-top:env(safe-area-inset-top,0px)}
 .pbar .wrap{display:flex;justify-content:space-between;align-items:center;padding-block:20px;border-bottom:1.5px solid currentColor}
 .ppage .big{font-size:clamp(56px,9vw,160px)}
-.pgal{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:40px}
-.pgal button{display:block;width:100%;margin:0;aspect-ratio:16/9;overflow:hidden;background:rgba(0,0,0,.18);padding:0;border:0;background:none;cursor:zoom-in;break-inside:avoid}
+.pgal{display:flex;flex-direction:column;gap:12px;margin-top:40px}
+.pgal button{display:block;height:100%;min-width:0;margin:0;padding:0;border:0;overflow:hidden;background:rgba(0,0,0,.18);cursor:zoom-in}
 .pgal img{width:100%;height:100%;object-fit:cover}
 .pnext{display:flex;flex-direction:column;gap:12px;padding-block:64px 90px;margin-top:48px;border-top:1.5px solid currentColor;text-decoration:none}
 .pnext:hover .mid{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:8px}
-@media (max-width:700px){.pgal{grid-template-columns:1fr}}
+
 
 /* Stills viewer */
 .viewer{position:fixed;inset:0;z-index:40;background:var(--bush);color:var(--bush-ink);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);animation:fade .25s}
@@ -417,14 +422,18 @@ document.querySelectorAll("[data-list]").forEach(el=>{const k=el.dataset.list;el
     slot=(slot+1+Math.floor(Math.random()*2))%4},3500)})();
 
 /* Snapshots: justified rows. Every row is exactly full width, every photo in a row has the same height, no cropping */
-const snR=SN.map(([f,r])=>{const d=window.DIMS&&DIMS[f];return d&&d[0]&&d[1]?d[0]/d[1]:r});
-function layoutSnaps(){const g=$("#gallery");if(!g)return;const W=g.clientWidth;if(!W)return;const gap=12,T=W<600?170:W<1000?260:340,n=snR.length;
+/* Justified rows: every row full width, photos in a row equally high, original ratios, no cropping */
+const ratioOf=(f,r)=>{const d=window.DIMS&&DIMS[f];return d&&d[0]&&d[1]?d[0]/d[1]:(r||1.5)};
+function justify(g,files,ratios,attr){if(!g)return;const W=g.clientWidth;if(!W)return;const gap=12,T=W<600?170:W<1000?260:340,n=files.length;
   const best=[0],cut=[0];
-  for(let j=1;j<=n;j++){best[j]=Infinity;let sum=0;for(let i=j-1;i>=0&&j-i<=5;i--){sum+=snR[i];const h=(W-gap*(j-i-1))/sum;const c=best[i]+Math.pow(h-T,2)*(j-i===1&&snR[i]<1?3:1);if(c<best[j]){best[j]=c;cut[j]=i}}}
+  for(let j=1;j<=n;j++){best[j]=Infinity;let sum=0;for(let i=j-1;i>=0&&j-i<=5;i--){sum+=ratios[i];const h=(W-gap*(j-i-1))/sum;const c=best[i]+Math.pow(h-T,2)*(j-i===1&&ratios[i]<1?3:1);if(c<best[j]){best[j]=c;cut[j]=i}}}
   const rows=[];for(let j=n;j>0;j=cut[j])rows.unshift([cut[j],j]);
-  g.innerHTML=rows.map(([a,b])=>{let sum=0;for(let k=a;k<b;k++)sum+=snR[k];const h=(W-gap*(b-a-1))/sum;
-    return `<div class="jrow" style="height:${h.toFixed(2)}px">`+SN.slice(a,b).map(([f],k)=>`<button type="button" data-sn="${a+k}" aria-label="Open image ${a+k+1}" style="flex:${snR[a+k]} 1 0">${img(f)}</button>`).join("")+`</div>`}).join("")}
-layoutSnaps();let snT;addEventListener("resize",()=>{clearTimeout(snT);snT=setTimeout(layoutSnaps,120)});
+  g.innerHTML=rows.map(([a,b])=>{let sum=0;for(let k=a;k<b;k++)sum+=ratios[k];const h=(W-gap*(b-a-1))/sum;
+    return `<div class="jrow" style="height:${h.toFixed(2)}px">`+files.slice(a,b).map((f,k)=>`<button type="button" ${attr}="${a+k}" aria-label="Open image ${a+k+1}" style="flex:${ratios[a+k]} 1 0">${img(f)}</button>`).join("")+`</div>`}).join("")}
+const snR=SN.map(([f,r])=>ratioOf(f,r));
+function layoutSnaps(){justify($("#gallery"),SN.map(x=>x[0]),snR,"data-sn")}
+function layoutPgal(){if(curP<0)return;const p=P[curP];justify($("#pgal"),p.img,p.img.map(f=>ratioOf(f)),"data-pi")}
+layoutSnaps();let snT;addEventListener("resize",()=>{clearTimeout(snT);snT=setTimeout(()=>{layoutSnaps();layoutPgal()},120)});
 
 /* Films */
 $("#films").innerHTML=FILMS.map((f,i)=>`<div><h3>${esc(f.t)}</h3><p class="small" style="opacity:.75">${esc(f.kind)} · ${f.y}</p><p>${esc(f.cast)}</p>${f.aw.length?`<ul>${f.aw.map(a=>`<li>${esc(a)}</li>`).join("")}</ul>`:""}</div>`).join("");
@@ -456,9 +465,9 @@ function openProject(n){const p=P[n];if(!p)return;curP=n;const L=P.filter(q=>q.c
   pg.innerHTML=`<div class="pbar"><div class="wrap"><button class="menu-btn" style="display:block" type="button" data-px>← ${esc(cat)}</button><span class="small">${esc(cat)}</span><button class="menu-btn" style="display:block" type="button" data-px>Close</button></div></div>
   <div class="wrap"><div class="hero-grid" style="padding-top:clamp(32px,5vw,80px)"><h2 class="big">${esc(p.t.toLowerCase())}</h2><div class="side lead">${p.sub?`<p>${esc(p.sub)}</p>`:""}<dl class="specs">${p.net?`<dt>${p.c==="commercial"?"Client":"Network"}</dt><dd>${esc(p.net)}</dd>`:""}${p.prod?`<dt>${p.c==="commercial"?"Agency / label":"Production"}</dt><dd>${esc(p.prod)}</dd>`:""}${p.y?`<dt>Year</dt><dd>${esc(p.y)}</dd>`:""}<dt>Role</dt><dd>Director</dd></dl></div></div>
   ${p.d||p.note?`<hr class="rule"><div class="row" style="padding-bottom:64px"><p class="intro lead">${esc(p.sub||cat)}</p><p class="lbl lead"><span>01.</span><span>About</span></p><p class="lead" style="max-width:36ch">${esc(p.d||p.note)}</p></div>`:""}
-  ${p.img.length?`<hr class="rule"><div class="row"><p class="intro lead">${p.img.length} image${p.img.length>1?"s":""}</p><p class="lbl lead"><span>${p.d||p.note?"02.":"01."}</span><span>Photos</span></p><p></p></div><div class="pgal">${p.img.map((s,k)=>`<button type="button" data-pi="${k}" aria-label="Enlarge image ${k+1}">${img(s,p.t)}</button>`).join("")}</div>`:""}
+  ${p.img.length?`<hr class="rule"><div class="row"><p class="intro lead">${p.img.length} image${p.img.length>1?"s":""}</p><p class="lbl lead"><span>${p.d||p.note?"02.":"01."}</span><span>Photos</span></p><p></p></div><div class="pgal" id="pgal"></div>`:""}
   ${nx!==p?`<a class="pnext" href="#p-${nx.id}"><span class="small">Next in ${esc(cat)}</span><span class="mid">${esc(nx.t.toLowerCase())}</span></a>`:""}</div>`;
-  pg.scrollTop=0;document.body.style.overflow="hidden";if(location.hash!=="#p-"+p.id)history.pushState(null,"","#p-"+p.id)}
+  pg.scrollTop=0;document.body.style.overflow="hidden";layoutPgal();if(location.hash!=="#p-"+p.id)history.pushState(null,"","#p-"+p.id)}
 function closeProject(){const pg=$("#ppage");if(!pg)return;pg.remove();document.body.style.overflow="";curP=-1;const p=P.find(q=>"#p-"+q.id===location.hash);if(p){history.pushState(null,"","#"+p.c);document.getElementById(p.c).scrollIntoView()}}
 function syncHash(){const h=location.hash;if(h.startsWith("#p-")){const n=P.findIndex(q=>"#p-"+q.id===h);if(n>-1){openProject(n);return}}if($("#ppage")){$("#ppage").remove();document.body.style.overflow=""}}
 addEventListener("hashchange",syncHash);addEventListener("popstate",syncHash);
