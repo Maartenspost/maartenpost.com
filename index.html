@@ -121,10 +121,11 @@ nav a:hover,nav a.on{background-size:calc(100% - .2em) 1.5px}
 @keyframes settle{from{transform:scale(1.06)}to{transform:none}}
 
 .cap{position:absolute;left:16px;bottom:14px;color:var(--linen);font-size:12px;letter-spacing:.06em;text-transform:uppercase;text-shadow:0 1px 6px rgba(0,0,0,.45)}
-.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding-block:22px 0}
-.facts b{display:block;font-weight:400;font-size:clamp(28px,3vw,44px);letter-spacing:-.03em;line-height:1}
-.facts span{display:block;margin-top:8px}
-@media (max-width:700px){.facts{grid-template-columns:1fr 1fr}}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:clamp(28px,3vw,44px)}
+.facts>div{border-top:1.5px solid currentColor;padding-top:12px;display:flex;flex-direction:column;gap:clamp(18px,2.2vw,34px);min-width:0}
+.facts b{display:block;font-weight:400;font-size:clamp(30px,3.2vw,52px);letter-spacing:-.035em;line-height:.95;font-variant-numeric:tabular-nums;text-wrap:balance}
+.facts span{display:block;opacity:.85}
+@media (max-width:700px){.facts{grid-template-columns:1fr 1fr;row-gap:28px}}
 
 /* Projects, in the villa layout */
 .proj{display:grid;grid-template-columns:1.5fr 1.2fr 1.8fr;gap:24px 32px;padding-block:22px 64px;align-items:start}
@@ -398,7 +399,7 @@ $("#mail").textContent=EMAIL;$("#mail").href="mailto:"+EMAIL;
 
 /* Facts */
 const nDir=CR.filter(c=>roleKey(c.role)==="Director").length,nAw=FILMS.reduce((a,f)=>a+f.aw.filter(x=>x.startsWith("Winner")).length,0);
-$("#facts").innerHTML=`<div><b class="num">${CR.length}</b><span class="small">Credits since 2007</span></div><div><b class="num">${nDir}</b><span class="small">As director</span></div><div><b>Adventure reality</b><span class="small">True expertise</span></div><div><b class="num">${nAw}</b><span class="small">Festival awards</span></div>`;
+$("#facts").innerHTML=[[CR.length,"Shows since 2007"],[nDir,"As director"],["Adventure reality","True expertise"],[nAw,"Festival awards"]].map(([v,l])=>`<div><span class="small">${l}</span><b${typeof v==="number"?' class="num"':""}>${v}</b></div>`).join("");
 $("#facts4").innerHTML=`<div><b class="num">2007</b><span>First credit, 6 Pack for MTV</span></div><div><b class="num">${CR.length}</b><span>Productions in film and television</span></div><div><b class="num">${nDir}</b><span>As director</span></div><div><b class="num">${new Set(CR.map(c=>c.net.split(" / ")[0])).size}</b><span>Channels and platforms</span></div>`;
 
 /* Project lists in the villa layout */
@@ -412,12 +413,14 @@ document.querySelectorAll("[data-list]").forEach(el=>{const k=el.dataset.list;el
 /* Snapshots */
 /* Landing: four rotating snapshots. New random set on every visit, then one tile changes every few seconds */
 (function(){const box=$("#herosnaps");if(!box)return;
-  const pool=SN.map(([f],i)=>i).filter(i=>SN[i][1]>=1.3).sort(()=>Math.random()-.5);
+  const extra=["img/commercial-ogb-kerst-ogb-kerst.jpg","img/commercial-ogb-kerst-caroussel.jpg","img/commercial-ogb-kerst-product-1.jpg","img/commercial-ogb-kerst-product-2.jpg","img/commercial-ogb-5-jaar-ogb-5-jaar.jpg","img/commercial-ogb-5-jaar-close-1.jpg","img/commercial-ogb-5-jaar-olcay.jpg","img/tv-wolven-10.jpg","img/tv-wolven-12.jpg","img/tv-wolven-13.jpg","img/tv-wolven-14.jpg","img/tv-wolven-18.jpg","img/tv-wolven-19.jpg"];
+  window.HS=SN.filter(x=>x[1]>=1.3).map(x=>x[0]).concat(extra);
+  const pool=HS.map((f,i)=>i).sort(()=>Math.random()-.5);
   let shown=pool.slice(0,4),rest=pool.slice(4),slot=0;
-  box.innerHTML=shown.map(i=>`<button type="button" data-sn="${i}" aria-label="Open snapshot">${img(SN[i][0])}</button>`).join("");
+  box.innerHTML=shown.map(i=>`<button type="button" data-hs="${i}" aria-label="Open image">${img(HS[i])}</button>`).join("");
   if(matchMedia("(prefers-reduced-motion:reduce)").matches||!rest.length)return;
   setInterval(()=>{if(document.hidden)return;const b=box.children[slot],old=b.querySelector("img"),nxt=rest.shift();rest.push(shown[slot]);shown[slot]=nxt;
-    const ni=document.createElement("img");ni.src=src(SN[nxt][0]);ni.alt="";ni.className="out";b.appendChild(ni);b.dataset.sn=nxt;
+    const ni=document.createElement("img");ni.src=src(HS[nxt]);ni.alt="";ni.className="out";b.appendChild(ni);b.dataset.hs=nxt;
     requestAnimationFrame(()=>requestAnimationFrame(()=>{ni.classList.remove("out");old.classList.add("out")}));setTimeout(()=>old.remove(),1300);
     slot=(slot+1+Math.floor(Math.random()*2))%4},3500)})();
 
@@ -482,6 +485,7 @@ document.addEventListener("click",e=>{
   if(e.target.closest("[data-px]")){closeProject();return}
   const pi=e.target.closest("[data-pi]");if(pi&&curP>-1){view(P[curP].img,+pi.dataset.pi,P[curP].t);return}
   const p=e.target.closest("article[data-p]");if(p){e.preventDefault();openProject(+p.dataset.p);return}
+  const hs=e.target.closest("[data-hs]");if(hs){view(HS,+hs.dataset.hs,"");return}
   const s=e.target.closest("[data-sn]");if(s){view(SN.map(x=>x[0]),+s.dataset.sn,"snapshots");return}
   if(e.target.closest("[data-vx]"))closeView();else if(e.target.closest("[data-vp]"))view(VL,vi-1,vt);else if(e.target.closest("[data-vn]"))view(VL,vi+1,vt);
 });
