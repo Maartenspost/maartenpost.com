@@ -106,6 +106,17 @@ nav a:hover,nav a.on{background-size:calc(100% - .2em) 1.5px}
 .hero .hero-grid .side p:last-child{text-box:trim-end cap alphabetic}
 .hero .side .where{margin:0}
 @media (max-width:800px){.hero{padding-top:12px}.hero .hero-grid{row-gap:36px}}
+/* Landing fits one screen on desktop: name, cities, section index and the four photos all in view */
+@media (min-width:801px){
+  .hero{margin-top:calc(-1 * var(--navh,72px));padding-top:calc(var(--navh,72px) + clamp(8px,3.2vh,48px))}
+  body.atindex nav{background:none!important}
+  .hero h1.big{font-size:min(11.8vw,17.5vh,200px)}
+  .hero .where{font-size:min(3.25vw,5.6vh,54px)}
+  .hero .hero-grid{padding-bottom:clamp(20px,3.6vh,56px)}
+  .hero .side.lead{font-size:min(1.72vw,2.7vh,25px)}
+  .cats{margin-bottom:clamp(14px,2.6vh,40px)}
+  .cats a{padding-block:clamp(10px,1.7vh,22px);font-size:min(1.9vw,3.1vh,30px)}
+}
 .hero-grid .side p:not(.where){max-width:30ch}
 .where{display:flex;flex-direction:column;font-size:clamp(30px,3.25vw,54px);line-height:1;letter-spacing:-.035em;font-weight:400;max-width:none!important;white-space:nowrap;border-top:1.5px solid currentColor}
 .where span{display:block;padding-block:10px 12px;border-bottom:1.5px solid currentColor}
@@ -451,6 +462,7 @@ document.querySelectorAll("[data-list]").forEach(el=>{const k=el.dataset.list;el
 /* Snapshots */
 /* Section index */
 (function(){const el=$("#cats");if(!el)return;
+  const nv=document.querySelector("nav");const setH=()=>document.documentElement.style.setProperty("--navh",nv.offsetHeight+"px");setH();addEventListener("resize",setH);
   if("IntersectionObserver" in window){document.body.classList.add("atindex");new IntersectionObserver(([e])=>document.body.classList.toggle("atindex",e.isIntersecting||e.boundingClientRect.top>0)).observe(el)}
   el.innerHTML=[["television","Television"],["streaming","Streaming"],["commercial","Commercial"],["snapshots","Snapshots"],["about","About"],["contact","Contact"]].map(([id,name])=>`<a href="#${id}"><span>${name}</span></a>`).join("")})();
 
