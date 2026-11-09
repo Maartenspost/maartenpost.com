@@ -113,15 +113,12 @@ nav a:hover,nav a.on{background-size:calc(100% - .2em) 1.5px}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media (max-width:700px){.badge{width:140px;height:140px}.badge .mark{inset:40px;width:60px;height:60px}}
 /* Section index on the landing page */
-.cats{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin:0 0 clamp(28px,3.4vw,52px)}
-.cats a{display:flex;flex-direction:column;gap:clamp(14px,1.6vw,26px);padding-top:12px;border-top:1.5px solid currentColor;text-decoration:none;min-width:0}
-.cats .ci{display:flex;justify-content:space-between;gap:8px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;opacity:.85}
-.cats .cn{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:clamp(22px,2.2vw,36px);letter-spacing:-.03em;line-height:1}
-.cats .cn i{font-style:normal;font-size:.7em;opacity:0;transform:translate(-6px,6px);transition:opacity .3s,transform .3s}
-.cats a:hover .cn i,.cats a:focus-visible .cn i{opacity:1;transform:none}
-.cats a:hover .cn span{text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:6px}
-@media (max-width:900px){.cats{grid-template-columns:repeat(3,1fr);row-gap:22px}}
-@media (max-width:520px){.cats{grid-template-columns:1fr 1fr}}
+.cats{display:grid;grid-template-columns:repeat(6,1fr);border-top:1.5px solid currentColor;border-bottom:1.5px solid currentColor;margin:0 0 clamp(28px,3.4vw,52px)}
+.cats a{display:flex;align-items:center;justify-content:center;text-align:center;padding:clamp(16px,1.6vw,24px) 8px;font-size:clamp(20px,1.9vw,30px);letter-spacing:-.03em;line-height:1;text-decoration:none;min-width:0;position:relative;transition:background-color .3s}
+.cats a+a::before{content:"";position:absolute;left:0;top:28%;bottom:28%;border-left:1px solid currentColor;opacity:.45}
+.cats a:hover,.cats a:focus-visible{background:rgba(0,0,0,.06)}
+.cats a:hover span{text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:6px}
+@media (max-width:900px){.cats{grid-template-columns:repeat(3,1fr)}.cats a{font-size:clamp(16px,4.4vw,22px);padding-inline:4px}.cats a:nth-child(4)::before{display:none}.cats a:nth-child(n+4){border-top:1px solid rgba(0,0,0,.18)}}
 .hero-snaps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .hero-snaps button{position:relative;aspect-ratio:3/2;overflow:hidden;background:var(--bush);border:0;padding:0;cursor:zoom-in}
 .hero-snaps img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity 1.2s ease,transform 1.2s cubic-bezier(.2,.7,.1,1)}
@@ -437,9 +434,8 @@ document.querySelectorAll("[data-list]").forEach(el=>{const k=el.dataset.list;el
 
 /* Snapshots */
 /* Section index */
-(function(){const el=$("#cats");if(!el)return;const n=k=>P.filter(p=>p.c===k).length;
-  const items=[["television","Television",n("television")+" projects"],["streaming","Streaming",n("streaming")+" projects"],["commercial","Commercial",n("commercial")+" projects"],["snapshots","Snapshots",SN.length+" images"],["about","About","Bio & credits"],["contact","Contact","Get in touch"]];
-  el.innerHTML=items.map(([id,name,meta],i)=>`<a href="#${id}"><span class="ci"><span>${String(i+1).padStart(2,"0")}</span><span>${meta}</span></span><span class="cn"><span>${name}</span><i aria-hidden="true">↘</i></span></a>`).join("")})();
+(function(){const el=$("#cats");if(!el)return;
+  el.innerHTML=[["television","Television"],["streaming","Streaming"],["commercial","Commercial"],["snapshots","Snapshots"],["about","About"],["contact","Contact"]].map(([id,name])=>`<a href="#${id}"><span>${name}</span></a>`).join("")})();
 
 /* Landing: four rotating tiles. Tile 1 rotates programme images plus the Olcay Gulsen Beauty Christmas campaign;
    tiles 2-4 rotate the snapshots. A new random set on every visit, then one tile changes every few seconds. */
