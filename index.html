@@ -113,12 +113,13 @@ nav a:hover,nav a.on{background-size:calc(100% - .2em) 1.5px}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media (max-width:700px){.badge{width:140px;height:140px}.badge .mark{inset:40px;width:60px;height:60px}}
 /* Section index on the landing page */
+nav .wrap{transition:opacity .4s ease,visibility .4s}
+body.atindex nav .wrap{opacity:0;visibility:hidden}
 .cats{display:grid;grid-template-columns:repeat(6,1fr);border-top:1.5px solid currentColor;border-bottom:1.5px solid currentColor;margin:0 0 clamp(28px,3.4vw,52px)}
 .cats a{display:flex;align-items:center;justify-content:center;text-align:center;padding:clamp(16px,1.6vw,24px) 8px;font-size:clamp(20px,1.9vw,30px);letter-spacing:-.03em;line-height:1;text-decoration:none;min-width:0;position:relative;transition:background-color .3s}
-.cats a+a::before{content:"";position:absolute;left:0;top:28%;bottom:28%;border-left:1px solid currentColor;opacity:.45}
 .cats a:hover,.cats a:focus-visible{background:rgba(0,0,0,.06)}
 .cats a:hover span{text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:6px}
-@media (max-width:900px){.cats{grid-template-columns:repeat(3,1fr)}.cats a{font-size:clamp(16px,4.4vw,22px);padding-inline:4px}.cats a:nth-child(4)::before{display:none}.cats a:nth-child(n+4){border-top:1px solid rgba(0,0,0,.18)}}
+@media (max-width:900px){.cats{grid-template-columns:repeat(3,1fr)}.cats a{font-size:clamp(16px,4.4vw,22px);padding-inline:4px}.cats a:nth-child(n+4){border-top:1px solid rgba(0,0,0,.18)}}
 .hero-snaps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .hero-snaps button{position:relative;aspect-ratio:3/2;overflow:hidden;background:var(--bush);border:0;padding:0;cursor:zoom-in}
 .hero-snaps img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity 1.2s ease,transform 1.2s cubic-bezier(.2,.7,.1,1)}
@@ -443,6 +444,7 @@ document.querySelectorAll("[data-list]").forEach(el=>{const k=el.dataset.list;el
 /* Snapshots */
 /* Section index */
 (function(){const el=$("#cats");if(!el)return;
+  if("IntersectionObserver" in window){document.body.classList.add("atindex");new IntersectionObserver(([e])=>document.body.classList.toggle("atindex",e.isIntersecting||e.boundingClientRect.top>0)).observe(el)}
   el.innerHTML=[["television","Television"],["streaming","Streaming"],["commercial","Commercial"],["snapshots","Snapshots"],["about","About"],["contact","Contact"]].map(([id,name])=>`<a href="#${id}"><span>${name}</span></a>`).join("")})();
 
 /* Landing: four rotating tiles. Tile 1 rotates programme images plus the Olcay Gulsen Beauty Christmas campaign;
