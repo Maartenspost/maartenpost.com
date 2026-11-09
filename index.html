@@ -146,6 +146,11 @@ nav a:hover,nav a.on{background-size:calc(100% - .2em) 1.5px}
 .proj{cursor:pointer}
 .proj h3 a{text-decoration:none;background:linear-gradient(currentColor,currentColor) 0 100%/0 2px no-repeat;transition:background-size .4s ease}
 .proj:hover h3 a{background-size:100% 2px}
+.folded .proj.more{display:none}
+.morebar{display:flex;justify-content:center;border-top:1.5px solid currentColor;padding-top:clamp(28px,3vw,44px);margin-top:8px}
+.morebtn{font:inherit;font-size:clamp(18px,1.62vw,25px);letter-spacing:-.02em;color:inherit;background:none;border:1.5px solid currentColor;padding:14px 30px;cursor:pointer;transition:background-color .3s,color .3s}
+.morebtn span{opacity:.6}
+.morebtn:hover,.morebtn:focus-visible{background:rgba(127,127,100,.14)}
 .proj:hover .linkbtn{text-decoration-thickness:3px}
 .proj .ph img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s cubic-bezier(.2,.7,.1,1)}
 .proj:hover .ph img{transform:scale(1.03)}
@@ -428,9 +433,12 @@ $("#facts4").innerHTML=`<div><b class="num">2007</b><span>First credit, 6 Pack f
 document.querySelectorAll("[data-intro]").forEach(el=>el.textContent=CATS[el.dataset.intro].intro);
 document.querySelectorAll("[data-count]").forEach(el=>{const k=el.dataset.count,n=k==="snapshots"?SN.length:P.filter(p=>p.c===k).length;el.textContent=n+(k==="snapshots"?" images":n===1?" project":" projects")});
 document.querySelectorAll("[data-list]").forEach(el=>{const k=el.dataset.list;el.innerHTML=P.filter(p=>p.c===k).map((p,i)=>{const n=P.indexOf(p);
-  return `<article class="proj" data-p="${n}"><div class="ph">${p.pos?img(p.img[0],p.t).replace("<img ",`<img style="object-position:${p.pos}" `):img(p.img[0],p.t)}</div>
+  return `<article class="proj${i>=5?" more":""}" data-p="${n}"><div class="ph">${p.pos?img(p.img[0],p.t).replace("<img ",`<img style="object-position:${p.pos}" `):img(p.img[0],p.t)}</div>
   <div><h3><a href="#p-${p.id}">${esc(p.t)}</a></h3>${p.sub?`<p class="for lead">${esc(p.sub)}</p>`:""}</div>
-  <div class="txt">${p.d||p.note?`<p class="lead">${esc(p.d||p.note)}</p>`:""}<dl class="specs">${p.net?`<dt>${p.c==="commercial"?"Client":"Network"}</dt><dd>${esc(p.net)}</dd>`:""}${p.prod?`<dt>${p.c==="commercial"?"Agency / label":"Production"}</dt><dd>${esc(p.prod)}</dd>`:""}${p.y?`<dt>Year</dt><dd>${esc(p.y)}</dd>`:""}</dl><span class="linkbtn">More about ${esc(p.t)}</span></div></article>`}).join("")});
+  <div class="txt">${p.d||p.note?`<p class="lead">${esc(p.d||p.note)}</p>`:""}<dl class="specs">${p.net?`<dt>${p.c==="commercial"?"Client":"Network"}</dt><dd>${esc(p.net)}</dd>`:""}${p.prod?`<dt>${p.c==="commercial"?"Agency / label":"Production"}</dt><dd>${esc(p.prod)}</dd>`:""}${p.y?`<dt>Year</dt><dd>${esc(p.y)}</dd>`:""}</dl><span class="linkbtn">More about ${esc(p.t)}</span></div></article>`}).join("");
+  const extra=P.filter(p=>p.c===k).length-5;
+  if(extra>0){el.classList.add("folded");el.insertAdjacentHTML("afterend",`<div class="morebar"><button type="button" class="morebtn" aria-expanded="false">View more projects <span>(${extra})</span></button></div>`);
+    const b=el.nextElementSibling.querySelector("button");b.addEventListener("click",()=>{const open=el.classList.toggle("folded")===false;b.setAttribute("aria-expanded",open);b.innerHTML=open?"View fewer projects":`View more projects <span>(${extra})</span>`;if(!open)el.closest("section").scrollIntoView({behavior:"smooth"})})}});
 
 /* Snapshots */
 /* Section index */
