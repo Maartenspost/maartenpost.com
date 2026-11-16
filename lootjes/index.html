@@ -25,20 +25,59 @@
 [hidden]{display:none!important}
 html,body{min-height:100%;margin:0}
 body{background:radial-gradient(120% 70% at 50% 0%,#17392f 0%,var(--night) 65%) fixed,var(--night);color:var(--snow);font-family:var(--f-body);font-size:17px;line-height:1.45;
-  padding:env(safe-area-inset-top,0px) max(16px,env(safe-area-inset-right,0px)) calc(32px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));overflow-x:hidden}
+  padding:env(safe-area-inset-top,0px) max(16px,env(safe-area-inset-right,0px)) calc(70px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));overflow-x:hidden}
 #snow{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
 .app{position:relative;z-index:1;max-width:440px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
 
 .top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 0 6px;min-height:56px}
 .back{font:inherit;font-size:15px;font-weight:600;color:var(--snow-dim);background:none;border:none;padding:8px 4px;cursor:pointer}
 .back:disabled{visibility:hidden}
-.dots{display:flex;gap:6px;align-items:center}
+.dots{display:flex;gap:6px;align-items:center;min-width:0}
 .dots i{width:8px;height:8px;border-radius:99px;background:rgba(244,241,234,.2);transition:width .35s,background .35s}
 .dots i.on{width:24px;background:var(--gold)}
 .dots i.done{background:var(--gold-soft);opacity:.6}
 .toplink{font:inherit;font-size:15px;font-weight:600;color:var(--gold-soft);background:none;border:none;padding:8px 4px;cursor:pointer}
 
 .screen{flex:1;display:flex;flex-direction:column;gap:18px;padding-top:6px;animation:in .45s cubic-bezier(.2,.8,.2,1)}
+.screen.still,.screen.still *{animation:none!important}
+.screen.noin{animation:none}
+.hero.again .star,.hero.again .t1 .ch,.hero.again .t2,.hero.again path,.hero.again circle{animation-delay:0s!important;animation-duration:.01s,2.4s,1.6s,4s!important}
+.hero.again path{stroke-dashoffset:0}
+.hero.again circle{opacity:1}
+/* hero */
+.hero{position:relative;text-align:center;padding:4px 0 2px}
+.hero .star{display:block;font-size:30px;line-height:1;color:var(--gold);text-shadow:0 0 14px var(--gold),0 0 30px rgba(242,196,107,.6);animation:starIn .9s .1s cubic-bezier(.2,1.5,.4,1) both,twinkle 2.4s 1.2s ease-in-out infinite}
+@keyframes starIn{from{transform:scale(0) rotate(-180deg);opacity:0}}
+@keyframes twinkle{50%{transform:scale(1.18) rotate(12deg);filter:brightness(1.35)}}
+.hero .t1{font-family:var(--f-display);font-weight:700;font-size:48px;line-height:1.02;color:var(--snow);text-shadow:0 0 18px rgba(242,196,107,.28);margin-top:4px}
+.hero .t1 .ch{display:inline-block;animation:drop .8s cubic-bezier(.2,1.5,.4,1) both;animation-delay:calc(.25s + var(--i)*55ms)}
+@keyframes drop{from{transform:translateY(-70px) rotate(-16deg) scale(.6);opacity:0}}
+.hero .t2{font-family:var(--f-display);font-weight:700;font-size:36px;line-height:1.05;margin-top:2px;
+  background:linear-gradient(100deg,#e2a94b 0%,#f2c46b 38%,#fff7dc 50%,#f2c46b 62%,#e2a94b 100%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:rise .8s 1.05s cubic-bezier(.2,1.2,.4,1) both,shimmer 4s 2s linear infinite}
+@keyframes rise{from{transform:translateY(18px) scale(.9);opacity:0;filter:blur(6px)}}
+@keyframes shimmer{from{background-position:130% 0}to{background-position:-130% 0}}
+.garland{display:block;width:100%;height:46px;margin-top:4px;overflow:visible}
+.garland path{fill:none;stroke:#2f6b57;stroke-width:3;stroke-linecap:round;stroke-dasharray:420;stroke-dashoffset:420;animation:wire 1s 1.3s ease-out forwards}
+@keyframes wire{to{stroke-dashoffset:0}}
+.garland circle{opacity:0;animation:bulbIn .35s both,blink 1.6s ease-in-out infinite;animation-delay:calc(1.5s + var(--i)*70ms),calc(2.2s + var(--i)*190ms)}
+@keyframes bulbIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+.names .name{animation:pop .45s cubic-bezier(.2,1.4,.4,1) both;animation-delay:calc(1.5s + var(--i)*45ms)}
+.screen.again .names .name{animation-delay:calc(var(--i)*30ms)}
+@keyframes pop{from{transform:scale(.7);opacity:0}}
+.name .cnt3{display:block;font-size:12px;font-weight:600;color:var(--snow-dim);margin-top:2px}
+.name .cnt3.ok{color:#9ff0c6}
+.snowbank{position:fixed;left:0;right:0;bottom:0;height:70px;z-index:0;pointer-events:none}
+.snowbank svg{width:100%;height:100%;display:block}
+/* wishlist progress */
+.meter{display:flex;justify-content:center;gap:12px}
+.meter span{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-size:22px;border:2px dashed rgba(244,241,234,.25);color:transparent;transition:all .35s}
+.meter span.on{border:2px solid var(--gold);background:rgba(242,196,107,.15);color:var(--gold);animation:ping .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes ping{from{transform:scale(.4)}}
+.waitlist{display:grid;gap:6px}
+.waitrow{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:12px;background:rgba(19,47,40,.9);border:1px solid var(--line);font-size:15px}
+.waitrow b{font-weight:600}.waitrow span{color:var(--snow-dim);font-size:14px}.waitrow.ok span{color:#9ff0c6}
 @keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .stepnum{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700;text-align:center}
 h1{font-family:var(--f-display);font-weight:700;font-size:44px;line-height:1;margin:0;text-align:center;text-wrap:balance;text-shadow:0 0 18px rgba(242,196,107,.3)}
@@ -124,18 +163,22 @@ details.card[open] summary{margin-bottom:10px}
 .pill.done{border-color:rgba(143,227,182,.5);color:#bff0d4}
 footer{text-align:center;color:var(--snow-dim);font-size:13px;padding-top:22px}
 button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-@media (prefers-reduced-motion:reduce){.screen,.env,.flap,.letter,.after,.btn.pulse{animation-duration:.01s!important;animation-delay:0s!important}}
+@media (prefers-reduced-motion:reduce){.hero *,.names .name,.garland *,.meter span,.screen,.env,.flap,.letter,.after,.btn.pulse{animation-duration:.01s!important;animation-delay:0s!important}}
 </style>
 </head>
 <body>
 <canvas id="snow" aria-hidden="true"></canvas>
+<div class="snowbank" aria-hidden="true"><svg viewBox="0 0 400 70" preserveAspectRatio="none"><defs><linearGradient id="sb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#cfe0e6"/></linearGradient></defs>
+<path d="M0 44 C40 22 70 30 105 38 C140 46 160 18 205 22 C250 26 270 44 310 36 C345 29 370 20 400 30 L400 70 L0 70Z" fill="url(#sb)" opacity=".92"/>
+<path d="M0 56 C50 44 90 52 140 50 C190 48 230 58 280 52 C330 46 370 54 400 50 L400 70 L0 70Z" fill="#e6f0f2"/></svg></div>
 <div class="app">
   <div class="top">
     <button class="back" id="back" type="button">‹ Terug</button>
-    <div class="dots" id="dots" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="dots" id="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <button class="toplink" id="toLists" type="button">Lijstjes</button>
   </div>
   <div id="banner" class="banner" hidden></div>
+  <div id="heroSlot"></div>
   <main id="view"></main>
   <footer id="foot"></footer>
 </div>
@@ -162,6 +205,9 @@ const seal=(g,r)=>btoa(unescape(encodeURIComponent(g+"|"+r))).split("").reverse(
 const unseal=(g,code)=>{try{const t=decodeURIComponent(escape(atob(String(code).split("").reverse().join(""))));const [a,b]=t.split("|");return a===g&&byId[b]?b:null;}catch(e){return null;}};
 const IDS=PEOPLE.map(p=>p.id);
 const hasDrawn=id=>!!(S.draws[id]&&S.draws[id].wrapped);
+const MIN=3;
+const wishCount=id=>(S.lists[id]&&Array.isArray(S.lists[id].items))?S.lists[id].items.length:0;
+const allReady=()=>IDS.every(id=>wishCount(id)>=MIN);
 const myTarget=()=>S.me&&hasDrawn(S.me)?unseal(S.me,S.draws[S.me].wrapped):null;
 /* Kies een lootje uit de pot. Nooit jezelf, en nooit zo dat de laatste persoon alleen zichzelf overhoudt. */
 function choose(me,draws){
@@ -217,9 +263,9 @@ function showBanner(t){const b=$("#banner");b.textContent=t;b.hidden=false;}
 function hideBanner(){$("#banner").hidden=true;}
 
 /* ---------- navigatie ---------- */
-const STEP={who:0,spin:1,reveal:2,lists:2};
+const STEP={who:0,wish:1,spin:2,reveal:3,lists:1};
 function go(screen){S.screen=screen;S.confirmReset=false;render();window.scrollTo({top:0,behavior:"auto"});}
-$("#back").onclick=()=>{ if(S.spinning) return; if(S.screen==="spin") go("who"); else if(S.screen==="reveal") go("spin"); else if(S.screen==="lists") go(S.mine?"reveal":S.me?"spin":"who"); };
+$("#back").onclick=()=>{ if(S.spinning) return; if(S.screen==="wish") go("who"); else if(S.screen==="spin") go(hasDrawn(S.me)?"who":"wish"); else if(S.screen==="reveal") go("spin"); else if(S.screen==="lists") go(S.mine?"reveal":S.me?"wish":"who"); };
 $("#toLists").onclick=()=>{ if(!S.spinning) go("lists"); };
 function soft(){ if(S.spinning||S.screen==="reveal") { renderChrome(); return; } const a=document.activeElement; if(a&&a.tagName==="INPUT"&&a.value){ renderChrome(); return; } render(); }
 
@@ -234,28 +280,53 @@ function renderChrome(){
       :el("button",{class:"link",type:"button",onclick:()=>S.F.signIn().catch(()=>showBanner("Inloggen lukte niet. Probeer het nog eens."))},"Organisator? Log hier in"));
   }
 }
+let lastScreen=null, whoVisits=0; const bootT=performance.now();
 function render(){
   renderChrome();
   const v=$("#view"); v.replaceChildren();
-  const scr=el("section",{class:"screen"});
-  ({who:whoScreen,spin:spinScreen,reveal:revealScreen,lists:listsScreen})[S.screen](scr);
+  const same=lastScreen===S.screen; lastScreen=S.screen;
+  if(S.screen==="who"&&!same) whoVisits++;
+  const hs=$("#heroSlot");
+  if(S.screen==="who"){ if(!hs.firstChild) hs.append(hero()); hs.hidden=false; if(whoVisits>1) hs.firstChild.classList.add("again"); }
+  else hs.hidden=true;
+  const intro=performance.now()-bootT<4500;
+  const scr=el("section",{class:"screen"+(same&&!intro?" still":"")+(same&&intro?" noin":"")+(whoVisits>1?" again":"")});
+  ({who:whoScreen,wish:wishScreen,spin:spinScreen,reveal:revealScreen,lists:listsScreen})[S.screen](scr);
   v.append(scr);
+}
+function hero(){
+  const t1=el("div",{class:"t1"});
+  [..."Familie Leguit"].forEach((c,i)=>{ t1.append(c===" "?" ":el("span",{class:"ch",style:"--i:"+i},c)); });
+  const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  svg.setAttribute("viewBox","0 0 400 46"); svg.setAttribute("class","garland"); svg.setAttribute("preserveAspectRatio","none");
+  const path=document.createElementNS(svg.namespaceURI,"path"); path.setAttribute("d","M6 6 Q103 44 200 10 Q297 44 394 6"); svg.append(path);
+  const cols=["#ffd36b","#ff6b78","#7ef0b6","#8fc8ff"];
+  for(let i=0;i<13;i++){ const x=6+i*(388/12); const half=x<200; const u=half?(x-6)/194:(x-200)/194;
+    const y=(half?(1-u)*(1-u)*6+2*(1-u)*u*44+u*u*10:(1-u)*(1-u)*10+2*(1-u)*u*44+u*u*6)+5;
+    const c=document.createElementNS(svg.namespaceURI,"circle"); c.setAttribute("cx",x); c.setAttribute("cy",y); c.setAttribute("r",5);
+    c.setAttribute("fill",cols[i%4]); c.setAttribute("style","--i:"+i+";filter:drop-shadow(0 0 5px "+cols[i%4]+")"); svg.append(c); }
+  return el("div",{class:"hero"},el("span",{class:"star"},"✦"),t1,el("div",{class:"t2"},"Lootjestrekmachine"),svg);
+}
+function pickName(id){
+  S.me=id; S.mine=null;
+  go(hasDrawn(id)||wishCount(id)>=MIN?"spin":"wish");
 }
 
 /* ---------- stap 1: wie ben jij ---------- */
 function whoScreen(s){
-  s.append(el("h1",{},"Familie Leguit",el("span",{},"Lootjestrekmachine")));
   if(S.owner) s.append(orgPanel());
   s.append(el("div",{class:"stepnum"},"Stap 1 · Wie ben jij?"));
   s.append(el("p",{class:"lead"},"Tik op je eigen naam."));
-  const g=el("div",{class:"names"});
-  for(const p of PEOPLE){
-    const b=el("button",{class:"name",type:"button",id:"who-"+p.id,onclick:()=>{S.me=p.id;S.mine=null;go("spin");}},p.name);
+  const g=el("div",{class:"names"}), ready=allReady();
+  PEOPLE.forEach((p,i)=>{
+    const b=el("button",{class:"name",type:"button",id:"who-"+p.id,style:"--i:"+i,onclick:()=>pickName(p.id)},p.name);
     if(hasDrawn(p.id)) b.append(el("span",{class:"tick","aria-label":"heeft al getrokken"},"✓"));
+    if(!ready){ const n=Math.min(MIN,wishCount(p.id)); b.append(el("span",{class:"cnt3"+(n>=MIN?" ok":"")},n>=MIN?"🎁 lijstje klaar":"🎁 "+n+" van "+MIN)); }
     g.append(b);
-  }
+  });
   s.append(g);
-  const n=IDS.filter(hasDrawn).length; s.append(el("p",{class:"muted"},n?n+" van de 10 hebben al getrokken ✓":"Nog niemand heeft getrokken. Jij mag beginnen!"));
+  if(!ready){ const n=IDS.filter(id=>wishCount(id)>=MIN).length; s.append(el("p",{class:"muted"},"Eerst zet iedereen minstens 3 cadeaus op zijn verlanglijstje. "+n+" van de 10 zijn klaar. Daarna kan er getrokken worden."));}
+  else{ const n=IDS.filter(hasDrawn).length; s.append(el("p",{class:"muted"},n?n+" van de 10 hebben al getrokken ✓":"Alle lijstjes zijn klaar. Er kan getrokken worden!")); }
 }
 function orgPanel(){
   const o=el("div",{class:"org"},el("div",{class:"k"},"Alleen voor Maarten"));
@@ -268,20 +339,41 @@ function orgPanel(){
   return o;
 }
 
-/* ---------- stap 2: draai ---------- */
+/* ---------- stap 2: verlanglijstje ---------- */
+function wishScreen(s){
+  if(!S.me){queueMicrotask(()=>go("who"));return;}
+  const me=byId[S.me], n=wishCount(S.me);
+  s.append(el("div",{class:"stepnum"},"Stap 2 · Jouw verlanglijstje"));
+  s.append(el("h2",{},"Wat wil jij, "+me.name+"?"));
+  s.append(el("p",{class:"lead"},n>=MIN?"Top, je lijstje is klaar! Je mag er altijd meer op zetten.":"Zet minstens 3 cadeaus op je lijstje. Daarna mag je naar het rad."));
+  const m=el("div",{class:"meter","aria-label":Math.min(n,MIN)+" van de 3 cadeaus"}); for(let i=0;i<MIN;i++) m.append(el("span",{class:i<n?"on":""},"🎁")); s.append(m);
+  s.append(listCard(S.me,true));
+  const b=el("button",{class:"btn"+(n>=MIN?" pulse":""),type:"button",id:"to-wheel",onclick:()=>go("spin")},n>=MIN?"Verder naar het rad ›":"Nog "+(MIN-n)+" cadeau"+(MIN-n===1?"":"s")+" te gaan");
+  if(n<MIN) b.disabled=true;
+  s.append(b);
+}
+
+/* ---------- stap 3: draai ---------- */
 let wheel=null, wheelRot=0;
 function spinScreen(s){
   if(!S.me){queueMicrotask(()=>go("who"));return;}
   const me=byId[S.me], done=hasDrawn(S.me);
   S.wheelNames=PEOPLE.filter(p=>p.id!==S.me);
-  s.append(el("div",{class:"stepnum"},"Stap 2 · Trek je lootje"));
+  s.append(el("div",{class:"stepnum"},"Stap 3 · Trek je lootje"));
   s.append(el("h2",{},"Hoi "+me.name+"!"));
   const box=el("div",{class:"wheel-box"},el("div",{class:"pointer",id:"pointer"}),el("canvas",{id:"wheel","aria-label":"Draaiwiel met de namen die je kunt trekken"}),el("div",{class:"hub"},"🎁"));
-  if(!done){
+  if(!done&&!allReady()){
+    box.classList.add("dim");
+    s.append(el("p",{class:"lead"},"Nog even geduld! Het rad gaat pas draaien als iedereen minstens 3 cadeaus op zijn lijstje heeft."),box);
+    const wl=el("div",{class:"waitlist"});
+    for(const p of PEOPLE){ const n=Math.min(MIN,wishCount(p.id)); wl.append(el("div",{class:"waitrow"+(n>=MIN?" ok":"")},el("b",{},p.name),el("span",{},n>=MIN?"✓ klaar":n+" van "+MIN))); }
+    s.append(wl, el("button",{class:"btn ghost",type:"button",onclick:()=>go("wish")},"Mijn lijstje aanpassen"));
+  }else if(!done){
     s.append(el("p",{class:"lead"},"Druk op Draai! Het rad kiest een naam uit de pot. Jij staat er zelf niet op."),box);
     s.append(el("div",{class:"stack"},
       el("button",{class:"btn pulse",type:"button",id:"spin",onclick:async e=>{
         const btn=e.currentTarget; btn.disabled=true; btn.textContent="Even schudden…"; ac();
+        if(!allReady()){ render(); return; }
         let r=null; try{ r=await store.draw(S.me); }catch(err){ btn.disabled=false; btn.textContent="Draai!"; return; }
         if(!r||!byId[r]){ showBanner("Er ging iets mis bij het trekken. Probeer het nog eens."); btn.disabled=false; btn.textContent="Draai!"; return; }
         btn.textContent="Draai!"; spin(r);
@@ -354,7 +446,7 @@ function spin(target){
 function revealScreen(s){
   const t=S.mine; if(!t){queueMicrotask(()=>go(S.me?"spin":"who"));return;}
   const nm=byId[t].name;
-  s.append(el("div",{class:"stepnum"},"Stap 3 · Jouw lootje"));
+  s.append(el("div",{class:"stepnum"},"Stap 4 · Jouw lootje"));
   s.append(el("div",{class:"env-wrap"},el("div",{class:"env"},
     el("div",{class:"env-back"}),
     el("div",{class:"letter"},el("small",{},"Jij koopt een cadeau voor"),el("b",{id:"lootje-naam"},nm)),
@@ -418,12 +510,18 @@ function listCard(id,mine,collapsible){
 /* ---------- sneeuw & confetti ---------- */
 const sc=$("#snow"),sx=sc.getContext("2d"); let flakes=[],sparks=[];
 function sizeSnow(){const r=Math.min(devicePixelRatio||1,2);sc.width=innerWidth*r;sc.height=innerHeight*r;sx.setTransform(r,0,0,r,0,0);
-  const n=Math.round(Math.min(110,innerWidth*innerHeight/11000));flakes=Array.from({length:n},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*2.4+.5,s:Math.random()*.5+.2,d:Math.random()*6}));}
+  const n=Math.round(Math.min(260,innerWidth*innerHeight/4200));
+  flakes=Array.from({length:n},()=>{const z=Math.random();return {x:Math.random()*innerWidth,y:Math.random()*innerHeight,z,r:.6+z*z*3.4,s:.25+z*1.1,d:Math.random()*6,w:.2+Math.random()*.6};});
+  stars=Array.from({length:Math.round(innerWidth/9)},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight*.45,r:Math.random()*1.1+.3,p:Math.random()*6}));}
+let stars=[];
 function burst(){if(reduced)return;const b=$(".wheel-box");if(!b)return;const r=b.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
   for(let i=0;i<80;i++){const a=Math.random()*Math.PI*2,v=Math.random()*7+2;sparks.push({x:cx,y:cy,vx:Math.cos(a)*v,vy:Math.sin(a)*v-2,life:1,c:["#f2c46b","#d9535e","#9ff0c6","#fff"][i%4],w:4,h:4});}}
 function confetti(){if(reduced)return;for(let i=0;i<120;i++){sparks.push({x:Math.random()*innerWidth,y:-20-Math.random()*200,vx:(Math.random()-.5)*2,vy:Math.random()*2+2,life:1.6,c:["#f2c46b","#d9535e","#9ff0c6","#fff","#b8323f"][i%5],w:6,h:10,rot:Math.random()*6});}}
 function loop(t){sx.clearRect(0,0,innerWidth,innerHeight);sx.fillStyle="#fff";
-  for(const f of flakes){if(!reduced){f.y+=f.s*(1+f.r*.3);f.x+=Math.sin(t/1700+f.d)*.3;if(f.y>innerHeight+5){f.y=-5;f.x=Math.random()*innerWidth;}}sx.globalAlpha=.3+f.r/5;sx.beginPath();sx.arc(f.x,f.y,f.r,0,7);sx.fill();}
+  for(const st of stars){sx.globalAlpha=reduced?.5:.25+.5*(.5+.5*Math.sin(t/700+st.p));sx.beginPath();sx.arc(st.x,st.y,st.r,0,7);sx.fill();}
+  const wind=Math.sin(t/5200)*.6+Math.sin(t/1900)*.25;
+  for(const f of flakes){if(!reduced){f.y+=f.s;f.x+=Math.sin(t/1500+f.d)*f.w+wind*f.z;if(f.y>innerHeight+6){f.y=-6;f.x=Math.random()*innerWidth;}if(f.x>innerWidth+6)f.x=-6;if(f.x<-6)f.x=innerWidth+6;}
+    sx.globalAlpha=.25+f.z*.7;sx.beginPath();sx.arc(f.x,f.y,f.r,0,7);sx.fill();}
   sparks=sparks.filter(p=>p.life>0&&p.y<innerHeight+40);
   for(const p of sparks){p.x+=p.vx;p.y+=p.vy;p.vy+=p.w>4?.04:.15;p.life-=p.w>4?.006:.014;sx.globalAlpha=Math.max(0,Math.min(1,p.life));sx.fillStyle=p.c;
     if(p.w>4){p.rot+=.08;sx.save();sx.translate(p.x,p.y);sx.rotate(p.rot);sx.fillRect(-p.w/2,-p.h/2,p.w,p.h*Math.abs(Math.cos(p.rot)));sx.restore();}else sx.fillRect(p.x,p.y,4,4);}
