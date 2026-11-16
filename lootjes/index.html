@@ -6,592 +6,425 @@
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#0c1f1a">
 <meta property="og:title" content="De Familie Leguit Lootjestrekmachine">
-<meta property="og:description" content="Draai aan het rad en ontdek voor wie jij een kerstcadeautje koopt.">
+<meta property="og:description" content="Kies je naam, draai aan het rad en ontdek voor wie jij een kerstcadeautje koopt.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%81%3C/text%3E%3C/svg%3E">
 <title>Familie Leguit Lootjestrekmachine</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap">
 <style>
-/* Layout: one centred column on a winter night; the wheel is the hero, wishlists below in tabs. Deliberately single (dark) theme: a night sky with snow. */
+/* Eén scherm per stap: 1 wie ben jij → 2 draai → 3 je lootje (+ verlanglijstjes). Bewust één donker kerstnacht-thema. */
 :root{
-  --night:#0c1f1a; --night-2:#123029; --pine:#1c4a3c; --pine-2:#24604d;
+  --night:#0c1f1a; --night-2:#132f28; --pine:#1c4a3c; --pine-2:#24604d;
   --cranberry:#b8323f; --cranberry-2:#d9535e; --gold:#f2c46b; --gold-soft:#f7dca0;
-  --snow:#f4f1ea; --snow-dim:#b9c9c1; --line:rgba(244,241,234,.14);
+  --snow:#f4f1ea; --snow-dim:#a9bdb4; --line:rgba(244,241,234,.13); --paper:#f6f1e6; --ink:#2b1a12;
   --f-display:"Mountains of Christmas","Georgia",serif;
   --f-body:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;
   color-scheme:dark;
 }
-*{box-sizing:border-box}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 [hidden]{display:none!important}
-html,body{min-height:100%}
-body{margin:0}
-body{background:radial-gradient(120% 80% at 50% 0%,#17392f 0%,var(--night) 60%) fixed,var(--night);color:var(--snow);font-family:var(--f-body);font-size:16px;line-height:1.5;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:env(safe-area-inset-top,0px) calc(48px + env(safe-area-inset-bottom,0px));overflow-x:hidden}
+html,body{min-height:100%;margin:0}
+body{background:radial-gradient(120% 70% at 50% 0%,#17392f 0%,var(--night) 65%) fixed,var(--night);color:var(--snow);font-family:var(--f-body);font-size:17px;line-height:1.45;
+  padding:env(safe-area-inset-top,0px) max(16px,env(safe-area-inset-right,0px)) calc(32px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));overflow-x:hidden}
 #snow{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
-.wrap{position:relative;z-index:1;max-width:760px;margin:0 auto}
-header{text-align:center;padding-block:28px 8px}
-.eyebrow{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
-h1{font-family:var(--f-display);font-weight:700;font-size:clamp(34px,8vw,64px);line-height:1.02;margin:6px 0 4px;text-wrap:balance;color:var(--snow);text-shadow:0 0 18px rgba(242,196,107,.35)}
-h1 span{color:var(--gold)}
-.sub{color:var(--snow-dim);margin:0}
-.garland{display:flex;justify-content:center;gap:14px;margin:14px 0 0}
-.garland i{width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold);animation:tw 1.6s infinite ease-in-out}
-.garland i:nth-child(3n+2){background:var(--cranberry-2);box-shadow:0 0 10px var(--cranberry-2);animation-delay:.4s}
-.garland i:nth-child(3n){background:#8fe3b6;box-shadow:0 0 10px #8fe3b6;animation-delay:.8s}
-@keyframes tw{50%{opacity:.25}}
+.app{position:relative;z-index:1;max-width:440px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
 
-.banner{border:1px solid var(--line);background:rgba(18,48,41,.8);padding:10px 14px;border-radius:10px;font-size:14px;color:var(--snow-dim);margin-top:14px}
-.banner[data-kind="warn"]{border-color:rgba(242,196,107,.5);color:var(--gold-soft)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 0 6px;min-height:56px}
+.back{font:inherit;font-size:15px;font-weight:600;color:var(--snow-dim);background:none;border:none;padding:8px 4px;cursor:pointer}
+.back:disabled{visibility:hidden}
+.dots{display:flex;gap:6px;align-items:center}
+.dots i{width:8px;height:8px;border-radius:99px;background:rgba(244,241,234,.2);transition:width .35s,background .35s}
+.dots i.on{width:24px;background:var(--gold)}
+.dots i.done{background:var(--gold-soft);opacity:.6}
+.toplink{font:inherit;font-size:15px;font-weight:600;color:var(--gold-soft);background:none;border:none;padding:8px 4px;cursor:pointer}
 
-section.card{background:rgba(18,48,41,.82);backdrop-filter:blur(4px);border:1px solid var(--line);border-radius:18px;padding:20px;margin-top:18px}
-h2{font-family:var(--f-display);font-size:30px;margin:0 0 4px;color:var(--gold-soft);font-weight:700}
-.muted{color:var(--snow-dim);font-size:14px;margin:0}
+.screen{flex:1;display:flex;flex-direction:column;gap:18px;padding-top:6px;animation:in .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.stepnum{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700;text-align:center}
+h1{font-family:var(--f-display);font-weight:700;font-size:44px;line-height:1;margin:0;text-align:center;text-wrap:balance;text-shadow:0 0 18px rgba(242,196,107,.3)}
+h1 span{display:block;color:var(--gold);font-size:.82em;margin-top:4px}
+h2{font-family:var(--f-display);font-weight:700;font-size:36px;line-height:1.05;margin:0;text-align:center;text-wrap:balance;color:var(--snow)}
+.lead{margin:0;text-align:center;color:var(--snow-dim);font-size:17px;text-wrap:balance}
+.banner{border:1px solid rgba(242,196,107,.45);background:rgba(18,48,41,.9);padding:10px 14px;border-radius:12px;font-size:14px;color:var(--gold-soft);text-align:center}
 
-.who{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.chip{font:inherit;font-size:15px;border:1px solid var(--line);background:var(--night-2);color:var(--snow);padding:8px 14px;border-radius:999px;cursor:pointer;transition:background .2s,border-color .2s,transform .1s}
-.chip:hover{border-color:var(--gold)}
-.chip:active{transform:scale(.97)}
-.chip[aria-pressed="true"]{background:var(--cranberry);border-color:var(--cranberry-2);font-weight:600}
-.chip .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--gold);margin-left:6px;vertical-align:middle;box-shadow:0 0 6px var(--gold)}
+.names{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.name{font:inherit;font-size:18px;font-weight:600;color:var(--snow);background:rgba(19,47,40,.9);border:1px solid var(--line);border-radius:16px;padding:16px 10px;cursor:pointer;transition:transform .12s,border-color .2s;position:relative}
+.name:hover{border-color:var(--gold)}
+.name:active{transform:scale(.96)}
+.name .tick{position:absolute;top:7px;right:10px;font-size:13px;color:#9ff0c6}
 
-.tabs{display:flex;gap:6px;justify-content:center;margin-top:22px}
-.tab{font:inherit;font-weight:600;background:transparent;color:var(--snow-dim);border:1px solid var(--line);padding:9px 18px;border-radius:999px;cursor:pointer}
-.tab[aria-selected="true"]{background:var(--snow);color:var(--night);border-color:var(--snow)}
+.btn{font:inherit;font-weight:800;font-size:20px;border:none;border-radius:18px;padding:18px 24px;cursor:pointer;width:100%;
+  background:linear-gradient(180deg,var(--cranberry-2),var(--cranberry));color:#fff;box-shadow:0 6px 0 #7d1f29,0 12px 26px rgba(0,0,0,.35);transition:transform .1s,box-shadow .1s,filter .2s}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #7d1f29,0 6px 12px rgba(0,0,0,.35)}
+.btn:disabled{opacity:.45;cursor:default;transform:none}
+.btn.gold{background:linear-gradient(180deg,var(--gold-soft),var(--gold));color:#4a3009;box-shadow:0 6px 0 #9c7128,0 12px 26px rgba(0,0,0,.35)}
+.btn.ghost{background:transparent;color:var(--snow);box-shadow:none;border:1px solid var(--line);font-size:17px;font-weight:600;padding:14px 18px}
+.btn.pulse:not(:disabled){animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{50%{filter:brightness(1.12);box-shadow:0 6px 0 #7d1f29,0 0 0 8px rgba(217,83,94,.18),0 12px 26px rgba(0,0,0,.35)}}
+.stack{display:grid;gap:12px}
+.link{font:inherit;font-size:15px;color:var(--snow-dim);background:none;border:none;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:6px;justify-self:center}
+.muted{color:var(--snow-dim);font-size:14px;text-align:center;margin:0}
 
-.wheel-zone{display:grid;place-items:center;gap:16px;margin-top:8px}
-.wheel-box{position:relative;width:100%;max-width:440px;aspect-ratio:1}
+.wheel-box{position:relative;width:100%;max-width:min(340px,42vh);aspect-ratio:1;margin:0 auto}
 #wheel{width:100%;height:100%;display:block}
-.pointer{position:absolute;left:50%;top:-6px;transform:translateX(-50%);width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:34px solid var(--gold);filter:drop-shadow(0 3px 6px rgba(0,0,0,.5)) drop-shadow(0 0 8px rgba(242,196,107,.6));z-index:2}
-.hub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:22%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff6dc,var(--gold) 45%,#a87a26);border:3px solid #fff3d0;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;color:#5a3b0c;font-size:clamp(14px,4vw,22px);box-shadow:0 4px 18px rgba(0,0,0,.45)}
+.pointer{position:absolute;left:50%;top:-8px;width:34px;height:40px;margin-left:-17px;transform-origin:50% 8px;z-index:2;filter:drop-shadow(0 3px 6px rgba(0,0,0,.5)) drop-shadow(0 0 8px rgba(242,196,107,.55))}
+.pointer::before{content:"";position:absolute;inset:0;background:var(--gold);clip-path:polygon(0 0,100% 0,50% 100%)}
+.hub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:24%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff6dc,var(--gold) 45%,#a87a26);border:3px solid #fff3d0;display:grid;place-items:center;font-size:clamp(22px,8vw,32px);box-shadow:0 4px 18px rgba(0,0,0,.45)}
+.wheel-box.dim{opacity:.45;filter:saturate(.6)}
+.wheel-box.win #wheel{animation:glow 1s ease-out}
+@keyframes glow{40%{filter:drop-shadow(0 0 28px rgba(242,196,107,.9))}}
 
-.btn{font:inherit;font-weight:800;font-size:18px;letter-spacing:.02em;border:none;border-radius:999px;padding:14px 30px;cursor:pointer;background:linear-gradient(180deg,var(--cranberry-2),var(--cranberry));color:#fff;box-shadow:0 6px 0 #7d1f29,0 10px 24px rgba(0,0,0,.35);transition:transform .1s,box-shadow .1s}
-.btn:hover{filter:brightness(1.07)}
-.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #7d1f29,0 4px 10px rgba(0,0,0,.35)}
-.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
-.btn.ghost{background:transparent;color:var(--snow-dim);box-shadow:none;border:1px solid var(--line);font-size:14px;font-weight:600;padding:9px 16px}
-.btn.gold{background:linear-gradient(180deg,var(--gold-soft),var(--gold));color:#4a3009;box-shadow:0 6px 0 #9c7128,0 10px 24px rgba(0,0,0,.35)}
-.center{text-align:center}
-.row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center}
-.status{font-size:14px;color:var(--snow-dim);text-align:center}
-.progress{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:6px}
-.pill{font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);color:var(--snow-dim)}
-.pill.done{border-color:rgba(143,227,182,.5);color:#bff0d4}
-.confirm{border:1px dashed rgba(242,196,107,.5);border-radius:12px;padding:12px;margin-top:10px}
+.env-wrap{display:grid;place-items:center;padding-top:118px;perspective:900px}
+.env{position:relative;width:min(100%,320px);aspect-ratio:1.45;animation:envIn .6s cubic-bezier(.2,1.3,.4,1) both}
+@keyframes envIn{from{transform:translateY(60px) scale(.6);opacity:0}to{transform:none;opacity:1}}
+.env-back,.env-front{position:absolute;inset:0;border-radius:10px}
+.env-back{background:#8e2431}
+.env-front{background:linear-gradient(160deg,#c43b48,#9c2733);clip-path:polygon(0 0,50% 52%,100% 0,100% 100%,0 100%);z-index:3}
+.env-front::after{content:"";position:absolute;left:50%;top:52%;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff2c9,var(--gold) 55%,#a87a26)}
+.flap{position:absolute;left:0;right:0;top:0;height:56%;background:linear-gradient(180deg,#b3313e,#a02c38);clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:50% 0;z-index:4;animation:flap .55s .55s ease-in forwards}
+@keyframes flap{to{transform:rotateX(180deg);z-index:1}}
+.letter{position:absolute;left:7%;right:7%;top:8%;bottom:6%;background:var(--paper);color:var(--ink);border-radius:6px;z-index:2;text-align:center;padding:14px 10px;display:flex;flex-direction:column;justify-content:center;gap:4px;
+  box-shadow:0 10px 30px rgba(0,0,0,.35);animation:letter .8s 1.05s cubic-bezier(.2,1.2,.4,1) forwards}
+@keyframes letter{to{transform:translateY(-54%);z-index:5}}
+.letter small{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--cranberry);font-weight:800}
+.letter b{font-family:var(--f-display);font-size:clamp(38px,12vw,52px);line-height:1;color:var(--pine)}
+.after{opacity:0;animation:fadeup .5s 1.9s ease-out forwards}
+@keyframes fadeup{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
-/* reveal */
-.reveal{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:rgba(5,14,11,.7);backdrop-filter:blur(3px);
-  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
-.lootje{position:relative;max-width:380px;width:100%;background:var(--snow);color:#2b1a12;border-radius:6px;padding:28px 24px 24px;text-align:center;
-  box-shadow:0 20px 60px rgba(0,0,0,.5);transform:rotate(-2deg);animation:pop .6s cubic-bezier(.2,1.4,.4,1)}
-.lootje::before{content:"";position:absolute;inset:8px;border:2px dashed rgba(184,50,63,.45);border-radius:4px;pointer-events:none}
-.lootje .k{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--cranberry);font-weight:700}
-.lootje .naam{font-family:var(--f-display);font-size:clamp(44px,12vw,64px);line-height:1;margin:10px 0 6px;color:#1c4a3c}
-.lootje p{margin:0 0 16px;color:#5b4a3f}
-@keyframes pop{from{transform:scale(.3) rotate(-14deg);opacity:0}to{transform:scale(1) rotate(-2deg);opacity:1}}
-
-/* wishlists */
-.lists{display:grid;gap:12px;margin-top:14px}
-.list{border:1px solid var(--line);border-radius:14px;background:rgba(12,31,26,.6)}
-.list > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:12px 14px}
-.list > summary::-webkit-details-marker{display:none}
-.avatar{width:38px;height:38px;flex:none;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff;background:var(--pine-2);border:2px solid rgba(255,255,255,.15)}
-.list .nm{font-weight:600;font-size:17px}
-.list .cnt{margin-left:auto;font-size:13px;color:var(--snow-dim)}
-.tag{font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--gold);color:#4a3009;font-weight:700}
+.card{background:rgba(19,47,40,.9);border:1px solid var(--line);border-radius:18px;padding:16px}
+.card h3{margin:0 0 10px;font-size:19px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tag{font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;border-radius:99px;background:var(--gold);color:#4a3009;font-weight:800}
 .tag.red{background:var(--cranberry);color:#fff}
-.tag,.list .cnt{white-space:nowrap}
-.lootje .btn.ghost{color:#5b4a3f;border-color:rgba(43,26,18,.25)}
-.items{list-style:none;margin:0;padding:0 14px 12px;display:grid;gap:8px}
-.item{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:10px;background:rgba(244,241,234,.05);border:1px solid var(--line)}
+.items{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.item{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:rgba(244,241,234,.05);border:1px solid var(--line)}
 .item .body{flex:1;min-width:0}
 .item .t{font-weight:600;overflow-wrap:anywhere}
 .item .meta{font-size:13px;color:var(--snow-dim);display:flex;flex-wrap:wrap;gap:10px}
-.item a{color:var(--gold-soft);overflow-wrap:anywhere}
-.item.claimed .t{text-decoration:line-through;text-decoration-color:var(--cranberry-2);opacity:.75}
-.mini{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--line);background:transparent;color:var(--snow);padding:5px 10px;border-radius:999px;cursor:pointer;white-space:nowrap}
-.mini:hover{border-color:var(--gold)}
+.item a{color:var(--gold-soft)}
+.item.claimed .t{text-decoration:line-through;text-decoration-color:var(--cranberry-2);opacity:.7}
+.mini{font:inherit;font-size:13px;font-weight:700;border:1px solid var(--line);background:transparent;color:var(--snow);padding:7px 11px;border-radius:99px;cursor:pointer;white-space:nowrap}
 .mini.on{background:var(--pine-2);border-color:#8fe3b6}
-.empty{color:var(--snow-dim);font-size:14px;padding:0 14px 14px;margin:0}
-form.add{display:grid;grid-template-columns:1fr;gap:8px;padding:0 14px 14px}
-@media (min-width:560px){form.add{grid-template-columns:2fr 1.4fr .8fr auto}}
-input{font:inherit;font-size:15px;background:var(--night);color:var(--snow);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0;width:100%}
-input:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.empty{color:var(--snow-dim);font-size:15px;margin:0}
+form.add{display:grid;gap:8px;margin-top:12px}
+form.add .row2{display:grid;grid-template-columns:1fr 90px;gap:8px}
+input{font:inherit;font-size:16px;background:var(--night);color:var(--snow);border:1px solid var(--line);border-radius:12px;padding:12px;width:100%;min-width:0}
 input::placeholder{color:#7f948a}
-form.add .btn{font-size:15px;padding:10px 18px;box-shadow:0 3px 0 #7d1f29}
-.pinform{display:grid;gap:10px;justify-items:center;width:100%;max-width:340px}
-.pinform input{text-align:center;font-size:20px;letter-spacing:.3em}
-.err{color:#ffb3b9;font-size:14px;font-weight:600;margin:0}
-.okmsg{color:#bff0d4;font-size:15px;font-weight:600;margin:0}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;max-width:440px;font-size:13px;color:var(--snow-dim)}
-.steps b{color:var(--gold-soft)}
-.steps span{border:1px solid var(--line);border-radius:12px;padding:6px 4px;text-align:center;line-height:1.25;display:flex;flex-direction:column;align-items:center;gap:1px}
-.steps b{font-size:15px}
-.steps span.now{border-color:var(--gold);color:var(--snow)}
-.linkbtn{font:inherit;font-size:13px;background:none;border:none;color:var(--snow-dim);text-decoration:underline;cursor:pointer;padding:4px}
-@media (max-width:560px){
-  header{padding-block:18px 4px}
-  h1{font-size:38px}
-  .sub{font-size:15px}
-  section.card{padding:16px;border-radius:16px;margin-top:14px}
-  h2{font-size:26px}
-  .who{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-  .chip{padding:12px 10px;text-align:center;font-size:16px}
-  .tabs{margin-top:16px}
-  .tab{flex:1;padding:11px 10px}
-  .btn{font-size:17px;padding:14px 24px}
-  .wheel-zone{gap:14px}
-  .pill{font-size:12px;padding:3px 9px}
-  .list > summary{padding:12px}
-  .items{padding:0 12px 12px}
-  .item{flex-wrap:wrap}
-  form.add{padding:0 12px 12px}
-  .lootje{padding:26px 18px 20px}
-}
-footer{text-align:center;color:var(--snow-dim);font-size:13px;margin-top:28px}
-@media (prefers-reduced-motion:reduce){.garland i{animation:none}.lootje{animation:none}}
+form.add .btn{font-size:17px;padding:13px}
+details.card summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;font-weight:600}
+details.card summary::-webkit-details-marker{display:none}
+details.card summary::after{content:"›";margin-left:auto;font-size:22px;color:var(--snow-dim);transition:transform .2s}
+details.card[open] summary::after{transform:rotate(90deg)}
+details.card[open] summary{margin-bottom:10px}
+.cnt{font-size:13px;color:var(--snow-dim);font-weight:400}
+
+.org{border:1px dashed rgba(242,196,107,.55);border-radius:18px;padding:16px;display:grid;gap:10px;background:rgba(12,31,26,.7)}
+.org .k{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:800;text-align:center}
+.progress{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.pill{font-size:12px;padding:3px 9px;border-radius:99px;border:1px solid var(--line);color:var(--snow-dim)}
+.pill.done{border-color:rgba(143,227,182,.5);color:#bff0d4}
+footer{text-align:center;color:var(--snow-dim);font-size:13px;padding-top:22px}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.screen,.env,.flap,.letter,.after,.btn.pulse{animation-duration:.01s!important;animation-delay:0s!important}}
 </style>
 </head>
 <body>
-
-
 <canvas id="snow" aria-hidden="true"></canvas>
-<div class="wrap">
-  <header>
-    <div class="eyebrow">Kerst 2026</div>
-    <h1>De Familie Leguit <span>Lootjestrekmachine</span></h1>
-    <p class="sub">Kies je naam, draai aan het rad en ontdek voor wie jij een cadeautje koopt. Zet ook je verlanglijstje erin.</p>
-    <div class="garland" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-    <div id="banner" class="banner" hidden></div>
-  </header>
-
-  <section class="card" aria-labelledby="who-h">
-    <h2 id="who-h">Wie ben jij?</h2>
-    <p class="muted">Kies je eigen naam. Dit onthoudt de machine op dit apparaat.</p>
-    <div class="who" id="who"></div>
-  </section>
-
-  <div class="tabs" role="tablist">
-    <button class="tab" role="tab" id="tab-wiel" aria-selected="true" aria-controls="view-wiel">Het rad</button>
-    <button class="tab" role="tab" id="tab-lijst" aria-selected="false" aria-controls="view-lijst">Verlanglijstjes</button>
+<div class="app">
+  <div class="top">
+    <button class="back" id="back" type="button">‹ Terug</button>
+    <div class="dots" id="dots" aria-hidden="true"><i></i><i></i><i></i></div>
+    <button class="toplink" id="toLists" type="button">Lijstjes</button>
   </div>
-
-  <section class="card" id="view-wiel" role="tabpanel" aria-labelledby="tab-wiel">
-    <div class="wheel-zone">
-      <div class="wheel-box">
-        <div class="pointer" aria-hidden="true"></div>
-        <canvas id="wheel" role="img" aria-label="Draaiwiel met de namen van de familie"></canvas>
-        <div class="hub" aria-hidden="true">Ho ho!</div>
-      </div>
-      <div id="wheel-actions" class="center" style="display:grid;gap:12px;justify-items:center"></div>
-      <div>
-        <div class="status" id="progress-label"></div>
-        <div class="progress" id="progress"></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="card" id="view-lijst" role="tabpanel" aria-labelledby="tab-lijst" hidden>
-    <h2>Verlanglijstjes</h2>
-    <p class="muted">Zet erin wat je graag wilt. Bij de lijstjes van anderen kun je aangeven dat jij iets koopt. Dat ziet de eigenaar van het lijstje niet.</p>
-    <div class="lists" id="lists"></div>
-  </section>
-
-  <footer><div>Met liefde gemaakt voor de familie Leguit · ❄</div><div id="orgbar" style="margin-top:8px"></div></footer>
-</div>
-
-<div class="reveal" id="reveal" hidden>
-  <div class="lootje" role="dialog" aria-modal="true" aria-labelledby="lootje-naam">
-    <div class="k">Jouw lootje</div>
-    <div class="naam" id="lootje-naam"></div>
-    <p>Jij koopt dit jaar een cadeautje voor deze persoon. Niet verklappen!</p>
-    <div class="row">
-      <button class="btn gold" id="to-list">Bekijk verlanglijstje</button>
-      <button class="btn ghost" id="close-reveal">Sluiten</button>
-    </div>
-  </div>
+  <div id="banner" class="banner" hidden></div>
+  <main id="view"></main>
+  <footer id="foot"></footer>
 </div>
 
 <script>
 (function(){
 "use strict";
-const PEOPLE = [
-  {id:"janwillem",name:"Jan Willem"},{id:"gabrielle",name:"Gabrielle"},{id:"willemijn",name:"Willemijn"},
-  {id:"maarten",name:"Maarten"},{id:"jesse",name:"Jesse"},{id:"antoinette",name:"Antoinette"},
-  {id:"sara",name:"Sara"},{id:"nine",name:"Nine"},{id:"jelle",name:"Jelle"},{id:"janica",name:"Janica"}
-];
-const byId = Object.fromEntries(PEOPLE.map(p=>[p.id,p]));
-const SEG_COLORS = ["#b8323f","#1c4a3c","#d9a441","#24604d","#8e2431","#2f6b57","#c2803a","#1a3f34","#a62b38","#3a7a63"];
-const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const $ = s=>document.querySelector(s);
-const el = (tag,props={},...kids)=>{const e=document.createElement(tag);for(const k in props){if(k==="class")e.className=props[k];else if(k==="text")e.textContent=props[k];else if(k.startsWith("on"))e.addEventListener(k.slice(2),props[k]);else e.setAttribute(k,props[k]);}for(const c of kids)if(c!=null)e.append(c);return e;};
+const PEOPLE=[{id:"janwillem",name:"Jan Willem"},{id:"gabrielle",name:"Gabrielle"},{id:"willemijn",name:"Willemijn"},{id:"maarten",name:"Maarten"},{id:"jesse",name:"Jesse"},{id:"antoinette",name:"Antoinette"},{id:"sara",name:"Sara"},{id:"nine",name:"Nine"},{id:"jelle",name:"Jelle"},{id:"janica",name:"Janica"}];
+const byId=Object.fromEntries(PEOPLE.map(p=>[p.id,p]));
+const SEG=["#b8323f","#1c4a3c","#d9a441","#24604d","#8e2431","#2f6b57","#c2803a","#1a3f34","#a62b38","#3a7a63"];
+const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $=s=>document.querySelector(s);
+const el=(tag,props={},...kids)=>{const e=document.createElement(tag);for(const k in props){if(k==="class")e.className=props[k];else if(k==="text")e.textContent=props[k];else if(k.startsWith("on"))e.addEventListener(k.slice(2),props[k]);else e.setAttribute(k,props[k]);}for(const c of kids)if(c!=null)e.append(c);return e;};
 
-/* ---------- state ---------- */
-const S = { me:null, lists:{}, claims:{}, revealed:{}, regs:{}, trek:null, tab:"wiel", confirmReset:false, spinning:false,
-  open:new Set(), owner:false, mine:{}, msg:null, busy:false, editPin:false, shared:false };
-// S.mine[personId] = receiverId, alleen in het geheugen van dit tabblad (na juiste pincode)
-try{ S.me = localStorage.getItem("leguit-me"); if(!byId[S.me]) S.me=null; }catch(e){}
+const S={screen:"who",me:null,mine:null,lists:{},claims:{},revealed:{},trek:null,owner:false,confirmReset:false,busy:false,spinning:false,F:null,focusList:null};
 
-/* ---------- crypto ----------
-   Iedereen kiest een pincode. In de browser wordt een sleutelpaar gemaakt; de geheime sleutel
-   wordt versleuteld met (een afgeleide van) de pincode. Bij het trekken wordt ieders lootje
-   versleuteld met diens publieke sleutel. Alleen wie de pincode kent, kan het lootje openen.
-   De trekking zelf staat nergens leesbaar opgeslagen. */
-const te=new TextEncoder(), td=new TextDecoder();
-const b64 = buf => { const a=new Uint8Array(buf); let s=""; for(let i=0;i<a.length;i++) s+=String.fromCharCode(a[i]); return btoa(s); };
-const unb64 = s => Uint8Array.from(atob(s),c=>c.charCodeAt(0));
-const ITER = 310000;
-async function pinKey(pin,salt){
-  const base=await crypto.subtle.importKey("raw",te.encode(pin.normalize("NFC")),"PBKDF2",false,["deriveKey"]);
-  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:ITER,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
-}
-async function makeRegistration(pin){
-  const kp=await crypto.subtle.generateKey({name:"RSA-OAEP",modulusLength:2048,publicExponent:new Uint8Array([1,0,1]),hash:"SHA-256"},true,["encrypt","decrypt"]);
-  const pub=await crypto.subtle.exportKey("jwk",kp.publicKey);
-  const priv=await crypto.subtle.exportKey("pkcs8",kp.privateKey);
-  const salt=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12));
-  const k=await pinKey(pin,salt);
-  const wrapped=await crypto.subtle.encrypt({name:"AES-GCM",iv},k,priv);
-  return {pub:{kty:pub.kty,n:pub.n,e:pub.e,alg:pub.alg},salt:b64(salt),iv:b64(iv),wrapped:b64(wrapped),iter:ITER,at:Date.now()};
-}
-async function encryptFor(reg,text){
-  const key=await crypto.subtle.importKey("jwk",{...reg.pub,ext:true,key_ops:["encrypt"]},{name:"RSA-OAEP",hash:"SHA-256"},false,["encrypt"]);
-  return b64(await crypto.subtle.encrypt({name:"RSA-OAEP"},key,te.encode(text)));
-}
-async function openLootje(reg,pin,ct){
-  const k=await pinKey(pin,unb64(reg.salt));
-  let priv;
-  try{ priv=await crypto.subtle.decrypt({name:"AES-GCM",iv:unb64(reg.iv)},k,unb64(reg.wrapped)); }
-  catch(e){ throw new Error("pin"); }
-  const pk=await crypto.subtle.importKey("pkcs8",priv,{name:"RSA-OAEP",hash:"SHA-256"},false,["decrypt"]);
-  return td.decode(await crypto.subtle.decrypt({name:"RSA-OAEP"},pk,unb64(ct)));
-}
+/* ---------- lootjes ---------- */
 function derangement(ids){
-  const rnd=n=>{ const a=new Uint32Array(1); const lim=Math.floor(0x100000000/n)*n; let x; do{ crypto.getRandomValues(a); x=a[0]; }while(x>=lim); return x%n; };
-  let a;
-  do{ a=[...ids]; for(let i=a.length-1;i>0;i--){ const j=rnd(i+1); [a[i],a[j]]=[a[j],a[i]]; } }
-  while(a.some((x,i)=>x===ids[i]));
+  const rnd=n=>{const a=new Uint32Array(1);const lim=Math.floor(0x100000000/n)*n;let x;do{crypto.getRandomValues(a);x=a[0];}while(x>=lim);return x%n;};
+  let a; do{a=[...ids];for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}}while(a.some((x,i)=>x===ids[i]));
   return Object.fromEntries(ids.map((id,i)=>[id,a[i]]));
 }
+const seal=(g,r)=>btoa(unescape(encodeURIComponent(g+"|"+r))).split("").reverse().join("");
+const unseal=(g,code)=>{try{const t=decodeURIComponent(escape(atob(String(code).split("").reverse().join(""))));const [a,b]=t.split("|");return a===g&&byId[b]?b:null;}catch(e){return null;}};
+const myTarget=()=>S.trek&&S.me?unseal(S.me,S.trek.lootjes[S.me]):null;
 
-/* ---------- storage ---------- */
+/* ---------- opslag ---------- */
 let store=null;
 function makeLocalStore(){
-  const key="leguit-local-v2";
-  let d={}; try{ d=JSON.parse(localStorage.getItem(key))||{}; }catch(e){}
-  for(const k of ["lijstjes","geclaimd","onthuld","deelnemers"]) d[k] ||= {};
-  const fire=()=>{ S.lists=d.lijstjes; S.claims=d.geclaimd; S.revealed=d.onthuld; S.regs=d.deelnemers; S.trek=d.trek&&d.trek.lootjes?d.trek:null; render(); };
-  const save=()=>{ try{ localStorage.setItem(key,JSON.stringify(d)); }catch(e){} fire(); return Promise.resolve(); };
+  const key="leguit-local-v3"; let d={}; try{d=JSON.parse(localStorage.getItem(key))||{};}catch(e){}
+  for(const k of ["lijstjes","geclaimd","onthuld"]) d[k] ||= {};
+  const fire=()=>{S.lists=d.lijstjes;S.claims=d.geclaimd;S.revealed=d.onthuld;S.trek=d.trek&&d.trek.lootjes?d.trek:null;soft();};
+  const save=()=>{try{localStorage.setItem(key,JSON.stringify(d));}catch(e){}fire();return Promise.resolve();};
   setTimeout(fire,0);
-  return {
-    saveList:(id,items)=>{ d.lijstjes[id]={items}; return save(); },
-    claim:(id,itemId,who)=>{ d.geclaimd[id] ||= {claims:{}}; d.geclaimd[id].claims[itemId]=who; return save(); },
-    register:(id,reg)=>{ d.deelnemers[id]=reg; return save(); },
-    setTrek:(t)=>{ d.trek=t; return save(); },
-    clearTrek:()=>{ d.trek=null; d.onthuld={}; return save(); },
-    reveal:(id)=>{ d.onthuld[id]={at:Date.now()}; return save(); }
-  };
+  return {saveList:(id,items)=>{d.lijstjes[id]={items};return save();},
+    claim:(id,itemId,who)=>{d.geclaimd[id] ||= {claims:{}};d.geclaimd[id].claims[itemId]=who;return save();},
+    setTrek:t=>{d.trek=t;return save();},clearTrek:()=>{d.trek=null;d.onthuld={};return save();},
+    reveal:id=>{d.onthuld[id]={at:Date.now()};return save();}};
 }
 function makeFirebaseStore(F){
-  const {db,fs}=F;
-  let answered=false;
-  const timer=setTimeout(()=>{ if(!answered) showBanner("De gegevens zijn nog niet bereikbaar. Even geduld, of controleer je internetverbinding.","warn"); },10000);
-  const ok=()=>{ if(!answered){ answered=true; clearTimeout(timer); hideBanner(); } };
-  const fail=()=>{ ok(); showBanner("Er ging iets mis met het laden. Herlaad de pagina over een paar minuten.","warn"); };
-  const toMap=snap=>Object.fromEntries(snap.docs.map(x=>[x.id,x.data()]));
-  const col=n=>fs.collection(db,n), docr=(n,id)=>fs.doc(db,n,id);
-  fs.onSnapshot(col("lijstjes"),s=>{ if(!s.metadata.fromCache) ok(); S.lists=toMap(s); render(); },fail);
-  fs.onSnapshot(col("geclaimd"),s=>{ S.claims=toMap(s); render(); },fail);
-  fs.onSnapshot(col("onthuld"),s=>{ S.revealed=toMap(s); render(); },fail);
-  fs.onSnapshot(col("deelnemers"),s=>{ S.regs=toMap(s); render(); },fail);
-  fs.onSnapshot(docr("trekking","huidig"),s=>{ const v=s.exists()?s.data():null; const was=!!S.trek; S.trek=v&&v.lootjes?v:null; if(was&&!S.trek) S.mine={}; render(); },fail);
-  const guard=p=>p.catch(e=>{
-    if(e&&e.code==="permission-denied") showBanner("Dit mag niet (meer). Pincodes kun je bijvoorbeeld niet wijzigen nadat er getrokken is.","warn");
-    else showBanner("Opslaan lukte niet. Controleer je internetverbinding en probeer het nog eens.","warn");
-    throw e; });
-  return {
-    saveList:(id,items)=>guard(fs.setDoc(docr("lijstjes",id),{items})),
+  const {db,fs}=F; let answered=false;
+  const timer=setTimeout(()=>{if(!answered)showBanner("Even geduld… de gegevens worden nog geladen. Controleer anders je internet.");},10000);
+  const ok=()=>{if(!answered){answered=true;clearTimeout(timer);hideBanner();}};
+  const fail=()=>{ok();showBanner("Er ging iets mis met laden. Probeer het over een paar minuten opnieuw.");};
+  const toMap=s=>Object.fromEntries(s.docs.map(x=>[x.id,x.data()]));
+  const col=n=>fs.collection(db,n),docr=(n,id)=>fs.doc(db,n,id);
+  fs.onSnapshot(col("lijstjes"),s=>{if(!s.metadata.fromCache)ok();S.lists=toMap(s);soft();},fail);
+  fs.onSnapshot(col("geclaimd"),s=>{S.claims=toMap(s);soft();},fail);
+  fs.onSnapshot(col("onthuld"),s=>{S.revealed=toMap(s);soft();},fail);
+  fs.onSnapshot(docr("trekking","huidig"),s=>{const v=s.exists()?s.data():null;S.trek=v&&v.lootjes?v:null;if(!S.trek)S.mine=null;soft();},fail);
+  const guard=p=>p.catch(e=>{showBanner(e&&e.code==="permission-denied"?"Dat mag helaas niet.":"Opslaan lukte niet. Controleer je internet en probeer het nog eens.");throw e;});
+  return {saveList:(id,items)=>guard(fs.setDoc(docr("lijstjes",id),{items})),
     claim:(id,itemId,who)=>guard(fs.setDoc(docr("geclaimd",id),{claims:{[itemId]:who}},{merge:true})),
-    register:(id,reg)=>guard(fs.setDoc(docr("deelnemers",id),reg)),
-    setTrek:(t)=>guard(fs.setDoc(docr("trekking","huidig"),t)),
-    clearTrek:async()=>{ await guard(fs.deleteDoc(docr("trekking","huidig"))); for(const id of Object.keys(S.revealed)) await guard(fs.deleteDoc(docr("onthuld",id))); },
-    reveal:(id)=>guard(fs.setDoc(docr("onthuld",id),{at:Date.now()}))
-  };
+    setTrek:t=>guard(fs.setDoc(docr("trekking","huidig"),t)),
+    clearTrek:async()=>{await guard(fs.deleteDoc(docr("trekking","huidig")));for(const id of Object.keys(S.revealed))await guard(fs.deleteDoc(docr("onthuld",id)));},
+    reveal:id=>guard(fs.setDoc(docr("onthuld",id),{at:Date.now()}))};
 }
-function showBanner(t,kind){ const b=$("#banner"); b.textContent=t; b.dataset.kind=kind||""; b.hidden=false; }
-function hideBanner(){ $("#banner").hidden=true; }
+function showBanner(t){const b=$("#banner");b.textContent=t;b.hidden=false;}
+function hideBanner(){$("#banner").hidden=true;}
 
-/* ---------- render ---------- */
-function render(){ renderWho(); renderWheelActions(); renderProgress(); renderLists(); }
-function renderWho(){
-  const box=$("#who"); box.replaceChildren();
+/* ---------- navigatie ---------- */
+const STEP={who:0,spin:1,reveal:2,lists:2};
+function go(screen){S.screen=screen;S.confirmReset=false;render();window.scrollTo({top:0,behavior:"auto"});}
+$("#back").onclick=()=>{ if(S.spinning) return; if(S.screen==="spin") go("who"); else if(S.screen==="reveal") go("spin"); else if(S.screen==="lists") go(S.mine?"reveal":S.me?"spin":"who"); };
+$("#toLists").onclick=()=>{ if(!S.spinning) go("lists"); };
+function soft(){ if(S.spinning||S.screen==="reveal") { renderChrome(); return; } const a=document.activeElement; if(a&&a.tagName==="INPUT"&&a.value){ renderChrome(); return; } render(); }
+
+function renderChrome(){
+  const st=STEP[S.screen];
+  [...$("#dots").children].forEach((d,i)=>{d.className=i===st?"on":i<st?"done":"";});
+  $("#back").disabled=S.screen==="who"||S.spinning;
+  $("#toLists").hidden=S.screen==="lists";
+  const f=$("#foot"); f.replaceChildren();
+  if(S.screen==="who"&&S.F){
+    f.append(S.owner?el("span",{},"Ingelogd als organisator · ",el("button",{class:"link",type:"button",onclick:()=>S.F.signOut()},"Uitloggen"))
+      :el("button",{class:"link",type:"button",onclick:()=>S.F.signIn().catch(()=>showBanner("Inloggen lukte niet. Probeer het nog eens."))},"Organisator? Log hier in"));
+  }
+}
+function render(){
+  renderChrome();
+  const v=$("#view"); v.replaceChildren();
+  const scr=el("section",{class:"screen"});
+  ({who:whoScreen,spin:spinScreen,reveal:revealScreen,lists:listsScreen})[S.screen](scr);
+  v.append(scr);
+}
+
+/* ---------- stap 1: wie ben jij ---------- */
+function whoScreen(s){
+  s.append(el("h1",{},"Familie Leguit",el("span",{},"Lootjestrekmachine")));
+  if(S.owner) s.append(orgPanel());
+  s.append(el("div",{class:"stepnum"},"Stap 1 · Wie ben jij?"));
+  s.append(el("p",{class:"lead"},"Tik op je eigen naam."));
+  const g=el("div",{class:"names"});
   for(const p of PEOPLE){
-    const b=el("button",{class:"chip",type:"button","aria-pressed":String(S.me===p.id),id:"who-"+p.id,onclick:()=>{
-      if(S.me!==p.id){ S.msg=null; S.confirmReset=false; S.mine={}; $("#reveal").hidden=true; }
-      S.me=p.id; try{localStorage.setItem("leguit-me",p.id);}catch(e){} render(); }},p.name);
-    box.append(b);
+    const b=el("button",{class:"name",type:"button",id:"who-"+p.id,onclick:()=>{S.me=p.id;S.mine=null;go("spin");}},p.name);
+    if(S.trek&&S.revealed[p.id]) b.append(el("span",{class:"tick","aria-label":"heeft al gedraaid"},"✓"));
+    g.append(b);
   }
+  s.append(g);
+  if(S.trek){ const n=PEOPLE.filter(p=>S.revealed[p.id]).length; s.append(el("p",{class:"muted"},n+" van de 10 hebben al gedraaid ✓")); }
 }
-const seal=(giver,rid)=>btoa(unescape(encodeURIComponent(giver+"|"+rid))).split("").reverse().join("");
-const unseal=(giver,code)=>{ try{ const t=decodeURIComponent(escape(atob(String(code).split("").reverse().join("")))); const [g,r]=t.split("|"); return g===giver&&byId[r]?r:null; }catch(e){ return null; } };
-
-function renderWheelActions(){
-  const box=$("#wheel-actions"); box.replaceChildren();
-  box.append(el("div",{class:"steps",style:"grid-template-columns:repeat(2,1fr)"},
-    el("span",{class:!S.trek?"now":""},el("b",{},"1"),"Maarten trekt"),
-    el("span",{class:S.trek?"now":""},el("b",{},"2"),"Iedereen draait")));
+function orgPanel(){
+  const o=el("div",{class:"org"},el("div",{class:"k"},"Alleen voor Maarten"));
   if(!S.trek){
-    box.append(el("p",{class:"status",text:"De lootjes zijn nog niet getrokken. Zodra Maarten heeft getrokken, kan iedereen hier aan het rad draaien."}));
-  }else if(!S.me){
-    box.append(el("p",{class:"status",text:"De lootjes zijn getrokken! Kies hierboven je naam en draai aan het rad."}));
+    o.append(el("p",{class:"muted"},"Trek de lootjes voor iedereen tegelijk. Niemand trekt zichzelf, en ook jij ziet niet wie wie heeft."));
+    const b=el("button",{class:"btn gold",type:"button",id:"do-trek",onclick:doTrek},"Trek de lootjes"); if(S.busy)b.disabled=true; o.append(b);
   }else{
-    const me=byId[S.me], code=S.trek.lootjes[S.me], rid=code?unseal(S.me,code):null;
-    if(!rid){
-      box.append(el("p",{class:"status",text:"Er is voor jou geen lootje gevonden. Vraag Maarten om opnieuw te trekken."}));
-    }else if(!S.mine[S.me]){
-      box.append(el("p",{class:"status",text:"Jouw lootje ligt klaar, "+me.name+". Draai aan het rad!"}));
-      box.append(el("button",{class:"btn",type:"button",id:"spin",onclick:()=>{ if(S.spinning) return; S.mine[S.me]=rid; spinTo(S.me,rid); }},"Draai het rad"));
-      box.append(el("p",{class:"muted",text:"Ben je niet "+me.name+"? Kies dan eerst je eigen naam. Niet spieken bij een ander!"}));
-    }else{
-      box.append(el("p",{class:"status",text:"Je lootje is open, "+me.name+"."}));
-      box.append(el("div",{class:"row"},
-        el("button",{class:"btn",type:"button",onclick:()=>spinTo(S.me,S.mine[S.me])},"Draai nog eens"),
-        el("button",{class:"btn ghost",type:"button",onclick:()=>showReveal(S.mine[S.me])},"Toon mijn lootje"),
-        el("button",{class:"btn ghost",type:"button",onclick:()=>{delete S.mine[S.me];render();}},"Verberg")));
-    }
+    const pr=el("div",{class:"progress"}); for(const p of PEOPLE) pr.append(el("span",{class:"pill"+(S.revealed[p.id]?" done":"")},p.name));
+    o.append(el("p",{class:"muted"},"De lootjes zijn getrokken. Groen = heeft al gedraaid."),pr);
+    if(!S.confirmReset) o.append(el("button",{class:"link",type:"button",onclick:()=>{S.confirmReset=true;render();}},"Opnieuw trekken"));
+    else o.append(el("p",{class:"muted"},"Weet je het zeker? Iedereen krijgt dan een nieuw lootje."),
+      el("div",{class:"stack"},el("button",{class:"btn",type:"button",onclick:async()=>{S.confirmReset=false;S.mine=null;try{await store.clearTrek();}catch(e){}render();}},"Ja, opnieuw trekken"),
+        el("button",{class:"btn ghost",type:"button",onclick:()=>{S.confirmReset=false;render();}},"Annuleren")));
   }
-  if(S.owner){
-    const org=el("div",{class:"confirm",style:"display:grid;gap:10px;justify-items:center;width:100%"});
-    org.append(el("div",{class:"eyebrow"},"Alleen voor Maarten"));
-    if(!S.trek){
-      org.append(el("p",{class:"status",text:"Trek de lootjes voor alle tien tegelijk. Niemand trekt zichzelf. Je ziet zelf niet wie wie heeft."}));
-      const b=el("button",{class:"btn gold",type:"button",id:"do-trek",onclick:doTrek},"Trek de lootjes");
-      if(S.busy) b.disabled=true;
-      org.append(b);
-    }else if(!S.confirmReset){
-      org.append(el("button",{class:"btn ghost",type:"button",onclick:()=>{S.confirmReset=true;render();}},"Opnieuw trekken"));
-    }else{
-      const n=Object.keys(S.revealed).length;
-      org.append(el("p",{class:"status",text:(n? n+" "+(n===1?"persoon heeft":"mensen hebben")+" hun lootje al gezien. ":"")+"Opnieuw trekken wist alle lootjes en verdeelt ze opnieuw."}));
-      org.append(el("div",{class:"row"},
-        el("button",{class:"btn ghost",type:"button",onclick:()=>{S.confirmReset=false;render();}},"Annuleren"),
-        el("button",{class:"btn",type:"button",onclick:async()=>{S.confirmReset=false; S.mine={}; try{ await store.clearTrek(); }catch(e){} render();}},"Ja, wis en trek opnieuw")));
-    }
-    box.append(org);
-  }
-}
-function renderProgress(){
-  const box=$("#progress"); box.replaceChildren();
-  const lab=$("#progress-label");
-  if(!S.trek){ lab.textContent=""; return; }
-  const n=PEOPLE.filter(p=>S.revealed[p.id]).length;
-  lab.textContent=n+" van de "+PEOPLE.length+" hebben gedraaid";
-  for(const p of PEOPLE) box.append(el("span",{class:"pill"+(S.revealed[p.id]?" done":"")},p.name));
+  return o;
 }
 async function doTrek(){
-  if(!S.owner||S.trek||S.busy) return;
-  S.busy=true; render();
-  try{
-    const ids=PEOPLE.map(p=>p.id), pr=derangement(ids), lootjes={};
-    for(const g of ids) lootjes[g]=seal(g,pr[g]);
-    await store.setTrek({lootjes,jaar:2026,getrokken:Date.now()});
-  }catch(e){ showBanner("Trekken lukte niet. Probeer het nog eens.","warn"); }
+  if(!S.owner||S.trek||S.busy) return; S.busy=true; render();
+  try{const ids=PEOPLE.map(p=>p.id),pr=derangement(ids),l={};for(const g of ids)l[g]=seal(g,pr[g]);await store.setTrek({lootjes:l,jaar:2026,getrokken:Date.now()});}
+  catch(e){showBanner("Trekken lukte niet. Probeer het nog eens.");}
   S.busy=false; render();
 }
 
-/* ---------- wishlists ---------- */
-function renderLists(){
-  const box=$("#lists");
-  const active=document.activeElement && box.contains(document.activeElement) ? document.activeElement.id : null;
-  const drafts={}; box.querySelectorAll("input").forEach(i=>drafts[i.id]=i.value);
-  box.replaceChildren();
-  const target = S.me ? S.mine[S.me] : null;
-  const order=[...PEOPLE].sort((a,b)=>(b.id===S.me)-(a.id===S.me) || (b.id===target)-(a.id===target));
-  for(const p of order){
-    const items=(S.lists[p.id]&&Array.isArray(S.lists[p.id].items))?S.lists[p.id].items:[];
-    const claims=(S.claims[p.id]&&S.claims[p.id].claims)||{};
-    const mine=p.id===S.me;
-    const det=el("details",{class:"list",id:"list-"+p.id});
-    if(S.open.has(p.id) || (mine && !S.open.size)) det.open=true;
-    det.addEventListener("toggle",()=>{ det.open?S.open.add(p.id):S.open.delete(p.id); });
-    det.append(el("summary",{},
-      el("span",{class:"avatar",style:"background:"+SEG_COLORS[PEOPLE.indexOf(p)]},p.name[0]),
-      el("span",{class:"nm"},p.name),
-      mine?el("span",{class:"tag"},"Jij"):null,
-      p.id===target?el("span",{class:"tag red"},"Jouw lootje"):null,
-      el("span",{class:"cnt"},items.length?items.length+(items.length===1?" wens":" wensen"):"nog leeg")));
-    if(!items.length) det.append(el("p",{class:"empty",text: mine?"Je lijstje is nog leeg. Zet hieronder je eerste wens erin.":p.name+" heeft nog niets op het lijstje gezet."}));
-    else{
-      const ul=el("ul",{class:"items"});
-      for(const it of items){
-        const claimedBy = !mine ? (claims[it.id]||null) : null;
-        const li=el("li",{class:"item"+(claimedBy?" claimed":"")});
-        const meta=el("div",{class:"meta"});
-        if(it.prijs) meta.append(el("span",{},"± € "+it.prijs));
-        if(it.link && /^https?:\/\//i.test(it.link)) meta.append(el("a",{href:it.link,target:"_blank",rel:"noopener noreferrer"},"Bekijk link"));
-        if(claimedBy) meta.append(el("span",{},"🎁 "+(claimedBy===S.me?"Jij koopt dit":(byId[claimedBy]?.name||"Iemand")+" koopt dit")));
-        li.append(el("div",{class:"body"},el("div",{class:"t"},it.tekst),meta));
-        if(mine){
-          li.append(el("button",{class:"mini",type:"button",onclick:()=>store.saveList(p.id,items.filter(x=>x.id!==it.id)).catch(()=>{})},"Verwijder"));
-        }else if(S.me && (!claimedBy || claimedBy===S.me)){
-          li.append(el("button",{class:"mini"+(claimedBy?" on":""),type:"button",onclick:()=>store.claim(p.id,it.id,claimedBy?null:S.me).catch(()=>{})},claimedBy?"Toch niet":"Ik koop dit"));
-        }
-        ul.append(li);
-      }
-      det.append(ul);
-    }
-    if(mine){
-      const f=el("form",{class:"add",autocomplete:"off"},
-        el("input",{id:"add-tekst",placeholder:"Wat wil je graag?",required:"",maxlength:"140","aria-label":"Wens"}),
-        el("input",{id:"add-link",placeholder:"Link (mag leeg)",type:"text",inputmode:"url","aria-label":"Link"}),
-        el("input",{id:"add-prijs",placeholder:"€",inputmode:"decimal",maxlength:"8","aria-label":"Prijs in euro"}),
-        el("button",{class:"btn",type:"submit"},"Toevoegen"));
-      f.addEventListener("submit",ev=>{
-        ev.preventDefault();
-        const t=$("#add-tekst").value.trim(); if(!t) return;
-        let link=$("#add-link").value.trim(); if(link && !/^https?:\/\//i.test(link)) link="https://"+link;
-        const prijs=$("#add-prijs").value.trim().replace(/[^\d.,]/g,"");
-        const next=[...items,{id:Math.random().toString(36).slice(2,10),tekst:t.slice(0,140),link:link.slice(0,500),prijs}];
-        ["#add-tekst","#add-link","#add-prijs"].forEach(s=>$(s).value="");
-        store.saveList(p.id,next).then(()=>{ const i=$("#add-tekst"); if(i) i.focus(); }).catch(()=>{});
-      });
-      det.append(f);
-    }
-    box.append(det);
+/* ---------- stap 2: draai ---------- */
+let wheel=null, wheelRot=0;
+function spinScreen(s){
+  if(!S.me){queueMicrotask(()=>go("who"));return;}
+  const me=byId[S.me], target=myTarget();
+  s.append(el("div",{class:"stepnum"},"Stap 2 · Draai het rad"));
+  s.append(el("h2",{},"Hoi "+me.name+"!"));
+  const box=el("div",{class:"wheel-box"+(S.trek?"":" dim")},el("div",{class:"pointer",id:"pointer"}),el("canvas",{id:"wheel","aria-label":"Draaiwiel met alle namen"}),el("div",{class:"hub"},"🎁"));
+  if(!S.trek){
+    s.append(el("p",{class:"lead"},"De lootjes zijn nog niet getrokken. Maarten doet dat binnenkort. Kom dan terug!"),box);
+  }else if(!target){
+    s.append(el("p",{class:"lead"},"Er ging iets mis met jouw lootje. Vraag Maarten om opnieuw te trekken."),box);
+  }else{
+    s.append(el("p",{class:"lead"},S.revealed[S.me]?"Je hebt al gedraaid. Draai nog een keer om je lootje terug te zien.":"Druk op de knop. Het rad stopt bij jouw lootje."),box);
+    s.append(el("div",{class:"stack"},
+      el("button",{class:"btn pulse",type:"button",id:"spin",onclick:e=>{e.currentTarget.disabled=true;spin(target);}},"Draai!"),
+      el("p",{class:"muted"},"Ben je niet "+me.name+"? Ga terug en kies je eigen naam.")));
   }
-  if(!S.me) box.prepend(el("p",{class:"muted",text:"Kies hierboven wie je bent om je eigen lijstje te vullen."}));
-  for(const k in drafts){ const i=document.getElementById(k); if(i) i.value=drafts[k]; }
-  if(active){ const a=document.getElementById(active); if(a) a.focus(); }
+  queueMicrotask(()=>{const c=$("#wheel"); if(c) wheel=makeWheel(c);});
 }
 
-/* ---------- tabs ---------- */
-function setTab(t){
-  S.tab=t;
-  $("#tab-wiel").setAttribute("aria-selected",String(t==="wiel"));
-  $("#tab-lijst").setAttribute("aria-selected",String(t==="lijst"));
-  $("#view-wiel").hidden=t!=="wiel"; $("#view-lijst").hidden=t!=="lijst";
+function makeWheel(cv){
+  const ctx=cv.getContext("2d"); let W=0,dpr=1,raf=0; const N=PEOPLE.length, A=Math.PI*2/N;
+  const size=()=>{dpr=Math.min(devicePixelRatio||1,2);W=cv.getBoundingClientRect().width;cv.width=Math.max(1,W*dpr);cv.height=Math.max(1,W*dpr);};
+  size();
+  const draw=t=>{
+    if(!cv.isConnected){cancelAnimationFrame(raf);return;}
+    if(W<60){size();if(W<60){raf=requestAnimationFrame(draw);return;}}
+    const c=W/2,R=W/2-3,inner=R-16; ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,W);
+    ctx.beginPath();ctx.arc(c,c,R,0,7);ctx.fillStyle="#6d1d26";ctx.fill();ctx.lineWidth=3;ctx.strokeStyle="#f2c46b";ctx.stroke();
+    for(let i=0;i<N;i++){
+      const a0=wheelRot+i*A; ctx.beginPath();ctx.moveTo(c,c);ctx.arc(c,c,inner,a0,a0+A);ctx.closePath();ctx.fillStyle=SEG[i];ctx.fill();
+      ctx.strokeStyle="rgba(255,243,208,.5)";ctx.lineWidth=1.2;ctx.stroke();
+      const mid=a0+A/2, nm=((mid%(Math.PI*2))+Math.PI*2)%(Math.PI*2), flip=nm>Math.PI/2&&nm<Math.PI*1.5;
+      ctx.save();ctx.translate(c,c);ctx.rotate(flip?mid+Math.PI:mid);ctx.textAlign=flip?"left":"right";ctx.textBaseline="middle";
+      ctx.fillStyle=(SEG[i]==="#d9a441"||SEG[i]==="#c2803a")?"#3a2508":"#fff8e6";
+      ctx.font="700 "+Math.max(11,W*0.046)+"px 'Bricolage Grotesque',system-ui,sans-serif";
+      ctx.fillText(PEOPLE[i].name,flip?-(inner-10):inner-10,0);ctx.restore();
+    }
+    const L=24, sp=S.spinning?14:2;
+    for(let i=0;i<L;i++){const a=i/L*Math.PI*2,x=c+Math.cos(a)*(R-8),y=c+Math.sin(a)*(R-8);
+      const on=reduced||Math.sin(t/1000*sp*Math.PI+i*(S.spinning?1:2.1))>-.1, col=["#ffe3a0","#ff8b93","#9ff0c6"][i%3];
+      ctx.beginPath();ctx.arc(x,y,on?3.8:3,0,7);if(on){ctx.shadowColor=col;ctx.shadowBlur=10;ctx.fillStyle=col;}else{ctx.shadowBlur=0;ctx.fillStyle="rgba(255,255,255,.16)";}ctx.fill();ctx.shadowBlur=0;}
+    raf=requestAnimationFrame(draw);
+  };
+  raf=requestAnimationFrame(draw);
+  return {size};
 }
-$("#tab-wiel").onclick=()=>setTab("wiel");
-$("#tab-lijst").onclick=()=>setTab("lijst");
+addEventListener("resize",()=>{wheel&&wheel.size();sizeSnow();});
 
-/* ---------- wheel ---------- */
-const wc=$("#wheel"), wx=wc.getContext("2d");
-let rot=0, W=0, dpr=1;
-const SEG=Math.PI*2/PEOPLE.length;
-function sizeWheel(){ dpr=Math.min(devicePixelRatio||1,2); const r=wc.getBoundingClientRect(); W=r.width; wc.width=Math.max(1,W*dpr); wc.height=Math.max(1,W*dpr); }
-function drawWheel(t){
-  if(W<60){ sizeWheel(); if(W<60) return; }
-  const c=W/2, R=W/2-4, inner=R-18;
-  wx.setTransform(dpr,0,0,dpr,0,0); wx.clearRect(0,0,W,W);
-  wx.beginPath(); wx.arc(c,c,R,0,Math.PI*2); wx.fillStyle="#6d1d26"; wx.fill();
-  wx.lineWidth=3; wx.strokeStyle="#f2c46b"; wx.stroke();
-  for(let i=0;i<PEOPLE.length;i++){
-    const a0=rot+i*SEG, a1=a0+SEG;
-    wx.beginPath(); wx.moveTo(c,c); wx.arc(c,c,inner,a0,a1); wx.closePath();
-    wx.fillStyle=SEG_COLORS[i]; wx.fill();
-    wx.strokeStyle="rgba(255,243,208,.55)"; wx.lineWidth=1.5; wx.stroke();
-    const mid=a0+SEG/2, norm=((mid%(Math.PI*2))+Math.PI*2)%(Math.PI*2);
-    const flip = norm>Math.PI/2 && norm<Math.PI*1.5;
-    wx.save(); wx.translate(c,c); wx.rotate(flip?mid+Math.PI:mid);
-    wx.textAlign=flip?"left":"right"; wx.textBaseline="middle";
-    wx.fillStyle=(SEG_COLORS[i]==="#d9a441"||SEG_COLORS[i]==="#c2803a")?"#3a2508":"#fff8e6";
-    wx.font="700 "+Math.max(11,W*0.042)+"px 'Bricolage Grotesque',system-ui,sans-serif";
-    wx.fillText(PEOPLE[i].name,flip?-(inner-12):inner-12,0);
-    wx.restore();
-  }
-  const n=30, speed=S.spinning?12:2.2;
-  for(let i=0;i<n;i++){
-    const a=i/n*Math.PI*2, x=c+Math.cos(a)*(R-9), y=c+Math.sin(a)*(R-9);
-    const on=reduced?true:(Math.sin(t/1000*speed*Math.PI+i*(S.spinning?0.9:Math.PI/1.5))>-0.2);
-    const col=["#ffe3a0","#ff8b93","#9ff0c6"][i%3];
-    wx.beginPath(); wx.arc(x,y,on?4.2:3.2,0,Math.PI*2);
-    if(on){ wx.shadowColor=col; wx.shadowBlur=12; wx.fillStyle=col; } else { wx.shadowBlur=0; wx.fillStyle="rgba(255,255,255,.18)"; }
-    wx.fill(); wx.shadowBlur=0;
-  }
-}
 let audio=null;
-function tick(){ try{ audio ||= new (window.AudioContext||window.webkitAudioContext)(); const o=audio.createOscillator(), g=audio.createGain();
-  o.type="triangle"; o.frequency.value=1500+Math.random()*300; g.gain.setValueAtTime(.05,audio.currentTime); g.gain.exponentialRampToValueAtTime(.0001,audio.currentTime+.05);
-  o.connect(g).connect(audio.destination); o.start(); o.stop(audio.currentTime+.06); }catch(e){} }
-function chime(){ try{ audio ||= new (window.AudioContext||window.webkitAudioContext)();
-  [784,988,1175,1568].forEach((f,i)=>{ const o=audio.createOscillator(), g=audio.createGain(), t0=audio.currentTime+i*.11;
-    o.type="sine"; o.frequency.value=f; g.gain.setValueAtTime(.0001,t0); g.gain.exponentialRampToValueAtTime(.08,t0+.02); g.gain.exponentialRampToValueAtTime(.0001,t0+.6);
-    o.connect(g).connect(audio.destination); o.start(t0); o.stop(t0+.65); }); }catch(e){} }
-function spinTo(me,target){
+const ac=()=>{try{audio ||= new (window.AudioContext||window.webkitAudioContext)();if(audio.state==="suspended")audio.resume();}catch(e){}return audio;};
+function tick(){const a=ac();if(!a)return;try{const o=a.createOscillator(),g=a.createGain();o.type="triangle";o.frequency.value=1400+Math.random()*300;g.gain.setValueAtTime(.05,a.currentTime);g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+.05);o.connect(g).connect(a.destination);o.start();o.stop(a.currentTime+.06);}catch(e){}}
+function chime(){const a=ac();if(!a)return;try{[784,988,1175,1568].forEach((f,i)=>{const o=a.createOscillator(),g=a.createGain(),t0=a.currentTime+i*.11;o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(.08,t0+.02);g.gain.exponentialRampToValueAtTime(.0001,t0+.7);o.connect(g).connect(a.destination);o.start(t0);o.stop(t0+.75);});}catch(e){}}
+
+function spin(target){
   if(S.spinning) return;
-  const idx=PEOPLE.findIndex(p=>p.id===target); if(idx<0) return;
-  tick();
-  const TAU=Math.PI*2, jitter=(Math.random()-.5)*SEG*0.6;
-  const start=rot; let end=-Math.PI/2-(idx+.5)*SEG+jitter; while(end<start+TAU*6) end+=TAU;
-  const dur=reduced?600:5200, t0=performance.now();
-  S.spinning=true; render();
-  let lastSeg=-1;
+  const idx=PEOPLE.findIndex(p=>p.id===target), A=Math.PI*2/PEOPLE.length, TAU=Math.PI*2;
+  ac(); S.spinning=true; renderChrome();
+  const start=wheelRot; let end=-Math.PI/2-(idx+.5)*A+(Math.random()-.5)*A*.55; while(end<start+TAU*7) end+=TAU;
+  const dur=reduced?700:6000, t0=performance.now(), ptr=$("#pointer"); let last=-1;
+  const ease=k=>1-Math.pow(1-k,4);
   const step=now=>{
-    const k=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-k,4);
-    rot=start+(end-start)*e;
-    const s=Math.floor(((-Math.PI/2-rot)%TAU+TAU)%TAU/SEG);
-    if(s!==lastSeg){ lastSeg=s; if(!reduced) tick(); }
+    const k=Math.min(1,(now-t0)/dur); wheelRot=start+(end-start)*ease(k);
+    const sIdx=Math.floor(((-Math.PI/2-wheelRot)%TAU+TAU)%TAU/A);
+    if(sIdx!==last){last=sIdx;if(!reduced){tick();ptr&&ptr.animate([{transform:"rotate(-24deg)"},{transform:"rotate(0)"}],{duration:Math.min(260,90+k*260),easing:"cubic-bezier(.3,1.6,.5,1)"});}}
     if(k<1) requestAnimationFrame(step);
-    else{ rot=end%TAU; S.spinning=false; chime(); burst();
-      if(!S.revealed[me]) store.reveal(me).catch(()=>{});
-      render(); showReveal(target); }
+    else{
+      wheelRot=end%TAU; chime(); burst(); const b=$(".wheel-box"); b&&b.classList.add("win");
+      if(!S.revealed[S.me]) store.reveal(S.me).catch(()=>{});
+      S.mine=target;
+      setTimeout(()=>{S.spinning=false;go("reveal");},reduced?200:1000);
+    }
   };
   requestAnimationFrame(step);
 }
-function showReveal(id){ $("#lootje-naam").textContent=byId[id]?.name||"?"; $("#reveal").hidden=false; $("#close-reveal").focus(); }
-$("#close-reveal").onclick=()=>{$("#reveal").hidden=true;};
-$("#reveal").addEventListener("click",e=>{ if(e.target.id==="reveal") $("#reveal").hidden=true; });
-document.addEventListener("keydown",e=>{ if(e.key==="Escape") $("#reveal").hidden=true; });
-$("#to-list").onclick=()=>{
-  $("#reveal").hidden=true; setTab("lijst");
-  const t=S.me&&S.mine[S.me];
-  if(t){ S.open.add(t); renderLists(); const d=document.getElementById("list-"+t); if(d) d.scrollIntoView({behavior:"smooth",block:"start"}); }
-};
 
-/* ---------- snow + sparkles ---------- */
-const sc=$("#snow"), sx=sc.getContext("2d");
-let flakes=[], sparks=[];
-function sizeSnow(){ const r=Math.min(devicePixelRatio||1,2); sc.width=innerWidth*r; sc.height=innerHeight*r; sx.setTransform(r,0,0,r,0,0);
-  const n=Math.round(Math.min(160,innerWidth*innerHeight/9000));
-  flakes=Array.from({length:n},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*2.6+.6,s:Math.random()*.6+.25,d:Math.random()*Math.PI*2})); }
-function burst(){ if(reduced) return; const r=wc.getBoundingClientRect(); const cx=r.left+r.width/2, cy=r.top+r.height/2;
-  for(let i=0;i<90;i++){ const a=Math.random()*Math.PI*2, v=Math.random()*7+2; sparks.push({x:cx,y:cy,vx:Math.cos(a)*v,vy:Math.sin(a)*v-2,life:1,c:["#f2c46b","#d9535e","#9ff0c6","#fff"][i%4]}); } }
-function drawSnow(t){
-  sx.clearRect(0,0,innerWidth,innerHeight); sx.fillStyle="rgba(255,255,255,.85)";
-  for(const f of flakes){ if(!reduced){ f.y+=f.s*(1+f.r*.3); f.x+=Math.sin(t/1600+f.d)*.35; if(f.y>innerHeight+5){f.y=-5;f.x=Math.random()*innerWidth;} }
-    sx.globalAlpha=.35+f.r/4; sx.beginPath(); sx.arc(f.x,f.y,f.r,0,Math.PI*2); sx.fill(); }
-  sx.globalAlpha=1; sparks=sparks.filter(p=>p.life>0);
-  for(const p of sparks){ p.x+=p.vx; p.y+=p.vy; p.vy+=.15; p.life-=.014; sx.globalAlpha=Math.max(0,p.life); sx.fillStyle=p.c; sx.fillRect(p.x,p.y,4,4); }
-  sx.globalAlpha=1;
+/* ---------- stap 3: je lootje ---------- */
+function revealScreen(s){
+  const t=S.mine; if(!t){queueMicrotask(()=>go(S.me?"spin":"who"));return;}
+  const nm=byId[t].name;
+  s.append(el("div",{class:"stepnum"},"Stap 3 · Jouw lootje"));
+  s.append(el("div",{class:"env-wrap"},el("div",{class:"env"},
+    el("div",{class:"env-back"}),
+    el("div",{class:"letter"},el("small",{},"Jij koopt een cadeau voor"),el("b",{id:"lootje-naam"},nm)),
+    el("div",{class:"env-front"}),el("div",{class:"flap"}))));
+  s.append(el("div",{class:"stack after"},
+    el("p",{class:"lead"},"Niet verklappen! 🤫"),
+    el("button",{class:"btn gold",type:"button",id:"to-wish",onclick:()=>{S.focusList=t;go("lists");}},"Wat wil "+nm+" graag?"),
+    el("button",{class:"btn ghost",type:"button",onclick:()=>{S.focusList=S.me;go("lists");}},"Mijn eigen verlanglijstje invullen"),
+    el("button",{class:"link",type:"button",id:"next-person",onclick:()=>{S.me=null;S.mine=null;go("who");}},"Klaar! Volgende persoon")));
+  setTimeout(()=>{if(S.screen==="reveal")confetti();},reduced?0:1500);
 }
-function loop(t){ drawSnow(t); drawWheel(t); requestAnimationFrame(loop); }
-addEventListener("resize",()=>{ sizeSnow(); sizeWheel(); });
-sizeSnow(); sizeWheel(); requestAnimationFrame(loop);
-document.fonts && document.fonts.ready.then(()=>sizeWheel());
 
-/* ---------- boot ---------- */
+/* ---------- verlanglijstjes ---------- */
+function listsScreen(s){
+  s.append(el("h2",{},"Verlanglijstjes"));
+  const target=S.mine;
+  if(S.me) s.append(listCard(S.me,true));
+  else s.append(el("p",{class:"lead"},"Ga terug en kies je naam om je eigen lijstje in te vullen."));
+  if(target) s.append(listCard(target,false));
+  const others=PEOPLE.filter(p=>p.id!==S.me&&p.id!==target);
+  s.append(el("div",{class:"stepnum",style:"margin-top:6px"},"Alle anderen"));
+  for(const p of others) s.append(listCard(p.id,false,true));
+  if(S.focusList){const id=S.focusList;S.focusList=null;setTimeout(()=>{const e=document.getElementById("list-"+id);e&&e.scrollIntoView({behavior:reduced?"auto":"smooth",block:"start"});},60);}
+}
+function listCard(id,mine,collapsible){
+  const p=byId[id], items=(S.lists[id]&&Array.isArray(S.lists[id].items))?S.lists[id].items:[], claims=(S.claims[id]&&S.claims[id].claims)||{};
+  const head=[el("span",{},p.name), mine?el("span",{class:"tag"},"Jij"):null, id===S.mine?el("span",{class:"tag red"},"Jouw lootje"):null];
+  const body=[];
+  if(!items.length) body.push(el("p",{class:"empty"},mine?"Nog leeg. Wat wil jij graag hebben?":p.name+" heeft nog niets op het lijstje gezet."));
+  else{
+    const ul=el("ul",{class:"items"});
+    for(const it of items){
+      const by=!mine?(claims[it.id]||null):null, li=el("li",{class:"item"+(by?" claimed":"")}), meta=el("div",{class:"meta"});
+      if(it.prijs) meta.append(el("span",{},"± € "+it.prijs));
+      if(it.link&&/^https?:\/\//i.test(it.link)) meta.append(el("a",{href:it.link,target:"_blank",rel:"noopener noreferrer"},"Bekijk"));
+      if(by) meta.append(el("span",{},"🎁 "+(by===S.me?"Jij koopt dit":(byId[by]?.name||"Iemand")+" koopt dit")));
+      li.append(el("div",{class:"body"},el("div",{class:"t"},it.tekst),meta));
+      if(mine) li.append(el("button",{class:"mini",type:"button",onclick:()=>store.saveList(id,items.filter(x=>x.id!==it.id)).catch(()=>{})},"Weg"));
+      else if(S.me&&(!by||by===S.me)) li.append(el("button",{class:"mini"+(by?" on":""),type:"button",onclick:()=>store.claim(id,it.id,by?null:S.me).catch(()=>{})},by?"Toch niet":"Ik koop dit"));
+      ul.append(li);
+    }
+    body.push(ul);
+  }
+  if(mine){
+    const f=el("form",{class:"add",autocomplete:"off"},
+      el("input",{id:"add-tekst",placeholder:"Wat wil je graag?",required:"",maxlength:"140","aria-label":"Wens"}),
+      el("div",{class:"row2"},el("input",{id:"add-link",placeholder:"Link (mag leeg)",inputmode:"url","aria-label":"Link"}),el("input",{id:"add-prijs",placeholder:"€",inputmode:"decimal",maxlength:"8","aria-label":"Prijs"})),
+      el("button",{class:"btn",type:"submit"},"+ Toevoegen"));
+    f.addEventListener("submit",ev=>{ev.preventDefault();const t=$("#add-tekst").value.trim();if(!t)return;
+      let link=$("#add-link").value.trim(); if(link&&!/^https?:\/\//i.test(link)) link="https://"+link;
+      const prijs=$("#add-prijs").value.trim().replace(/[^\d.,]/g,"");
+      const next=[...items,{id:Math.random().toString(36).slice(2,10),tekst:t.slice(0,140),link:link.slice(0,500),prijs}];
+      ["#add-tekst","#add-link","#add-prijs"].forEach(q=>$(q).value="");
+      store.saveList(id,next).then(()=>{render();const i=$("#add-tekst");i&&i.focus();}).catch(()=>{});});
+    body.push(f);
+  }
+  if(collapsible) return el("details",{class:"card",id:"list-"+id},el("summary",{},...head,el("span",{class:"cnt"},items.length?"· "+items.length+(items.length===1?" wens":" wensen"):"· leeg")),...body);
+  return el("div",{class:"card",id:"list-"+id},el("h3",{},...head),...body);
+}
+
+/* ---------- sneeuw & confetti ---------- */
+const sc=$("#snow"),sx=sc.getContext("2d"); let flakes=[],sparks=[];
+function sizeSnow(){const r=Math.min(devicePixelRatio||1,2);sc.width=innerWidth*r;sc.height=innerHeight*r;sx.setTransform(r,0,0,r,0,0);
+  const n=Math.round(Math.min(110,innerWidth*innerHeight/11000));flakes=Array.from({length:n},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*2.4+.5,s:Math.random()*.5+.2,d:Math.random()*6}));}
+function burst(){if(reduced)return;const b=$(".wheel-box");if(!b)return;const r=b.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+  for(let i=0;i<80;i++){const a=Math.random()*Math.PI*2,v=Math.random()*7+2;sparks.push({x:cx,y:cy,vx:Math.cos(a)*v,vy:Math.sin(a)*v-2,life:1,c:["#f2c46b","#d9535e","#9ff0c6","#fff"][i%4],w:4,h:4});}}
+function confetti(){if(reduced)return;for(let i=0;i<120;i++){sparks.push({x:Math.random()*innerWidth,y:-20-Math.random()*200,vx:(Math.random()-.5)*2,vy:Math.random()*2+2,life:1.6,c:["#f2c46b","#d9535e","#9ff0c6","#fff","#b8323f"][i%5],w:6,h:10,rot:Math.random()*6});}}
+function loop(t){sx.clearRect(0,0,innerWidth,innerHeight);sx.fillStyle="#fff";
+  for(const f of flakes){if(!reduced){f.y+=f.s*(1+f.r*.3);f.x+=Math.sin(t/1700+f.d)*.3;if(f.y>innerHeight+5){f.y=-5;f.x=Math.random()*innerWidth;}}sx.globalAlpha=.3+f.r/5;sx.beginPath();sx.arc(f.x,f.y,f.r,0,7);sx.fill();}
+  sparks=sparks.filter(p=>p.life>0&&p.y<innerHeight+40);
+  for(const p of sparks){p.x+=p.vx;p.y+=p.vy;p.vy+=p.w>4?.04:.15;p.life-=p.w>4?.006:.014;sx.globalAlpha=Math.max(0,Math.min(1,p.life));sx.fillStyle=p.c;
+    if(p.w>4){p.rot+=.08;sx.save();sx.translate(p.x,p.y);sx.rotate(p.rot);sx.fillRect(-p.w/2,-p.h/2,p.w,p.h*Math.abs(Math.cos(p.rot)));sx.restore();}else sx.fillRect(p.x,p.y,4,4);}
+  sx.globalAlpha=1;requestAnimationFrame(loop);}
+sizeSnow();requestAnimationFrame(loop);
+
+/* ---------- start ---------- */
 render();
-function renderOrgBar(F){
-  const bar=$("#orgbar"); if(!bar) return; bar.replaceChildren();
-  if(!F||!F.auth) return;
-  if(S.owner){
-    bar.append(el("span",{},"Ingelogd als organisator · "),el("button",{class:"linkbtn",type:"button",onclick:()=>F.signOut()},"Uitloggen"));
-  }else{
-    bar.append(el("button",{class:"linkbtn",type:"button",onclick:()=>F.signIn().catch(()=>showBanner("Inloggen lukte niet. Probeer het nog eens.","warn"))},"Inloggen als organisator"));
-  }
-}
-window.leguitStart = function(F){
-  if(F){
-    store=makeFirebaseStore(F);
-    F.onUser(u=>{ S.owner=!!(u&&u.email&&F.admins.includes(u.email.toLowerCase())); if(u&&!S.owner) showBanner("Je bent ingelogd met "+u.email+", maar dat is geen organisator-account.","warn"); S.confirmReset=false; render(); renderOrgBar(F); });
-    renderOrgBar(F);
-  }else{
-    store=makeLocalStore(); S.owner=true;
-    showBanner("Proefmodus: de machine is nog niet gekoppeld aan de online opslag. Alles wat je nu doet blijft alleen op dit apparaat.","warn");
-  }
+window.leguitStart=function(F){
+  if(F){S.F=F;store=makeFirebaseStore(F);
+    F.onUser(u=>{S.owner=!!(u&&u.email&&F.admins.includes(u.email.toLowerCase()));if(u&&!S.owner)showBanner("Je bent ingelogd met "+u.email+", maar dat is geen organisator-account.");render();});
+  }else{store=makeLocalStore();S.owner=true;showBanner("Proefmodus: nog niet gekoppeld aan de online opslag. Alles blijft op dit apparaat.");render();}
 };
 })();
 </script>
 <script type="module" src="app.js"></script>
 </body>
 </html>
-
