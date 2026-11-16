@@ -59,7 +59,7 @@ h2{font-family:var(--f-display);font-size:30px;margin:0 0 4px;color:var(--gold-s
 .tab[aria-selected="true"]{background:var(--snow);color:var(--night);border-color:var(--snow)}
 
 .wheel-zone{display:grid;place-items:center;gap:16px;margin-top:8px}
-.wheel-box{position:relative;width:min(92vw,440px);aspect-ratio:1;max-width:100%}
+.wheel-box{position:relative;width:100%;max-width:440px;aspect-ratio:1}
 #wheel{width:100%;height:100%;display:block}
 .pointer{position:absolute;left:50%;top:-6px;transform:translateX(-50%);width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:34px solid var(--gold);filter:drop-shadow(0 3px 6px rgba(0,0,0,.5)) drop-shadow(0 0 8px rgba(242,196,107,.6));z-index:2}
 .hub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:22%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff6dc,var(--gold) 45%,#a87a26);border:3px solid #fff3d0;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;color:#5a3b0c;font-size:clamp(14px,4vw,22px);box-shadow:0 4px 18px rgba(0,0,0,.45)}
@@ -122,11 +122,31 @@ form.add .btn{font-size:15px;padding:10px 18px;box-shadow:0 3px 0 #7d1f29}
 .pinform input{text-align:center;font-size:20px;letter-spacing:.3em}
 .err{color:#ffb3b9;font-size:14px;font-weight:600;margin:0}
 .okmsg{color:#bff0d4;font-size:15px;font-weight:600;margin:0}
-.steps{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;font-size:13px;color:var(--snow-dim)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;max-width:440px;font-size:13px;color:var(--snow-dim)}
 .steps b{color:var(--gold-soft)}
-.steps span{border:1px solid var(--line);border-radius:999px;padding:4px 10px}
+.steps span{border:1px solid var(--line);border-radius:12px;padding:6px 4px;text-align:center;line-height:1.25;display:flex;flex-direction:column;align-items:center;gap:1px}
+.steps b{font-size:15px}
 .steps span.now{border-color:var(--gold);color:var(--snow)}
 .linkbtn{font:inherit;font-size:13px;background:none;border:none;color:var(--snow-dim);text-decoration:underline;cursor:pointer;padding:4px}
+@media (max-width:560px){
+  header{padding-block:18px 4px}
+  h1{font-size:38px}
+  .sub{font-size:15px}
+  section.card{padding:16px;border-radius:16px;margin-top:14px}
+  h2{font-size:26px}
+  .who{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .chip{padding:12px 10px;text-align:center;font-size:16px}
+  .tabs{margin-top:16px}
+  .tab{flex:1;padding:11px 10px}
+  .btn{font-size:17px;padding:14px 24px}
+  .wheel-zone{gap:14px}
+  .pill{font-size:12px;padding:3px 9px}
+  .list > summary{padding:12px}
+  .items{padding:0 12px 12px}
+  .item{flex-wrap:wrap}
+  form.add{padding:0 12px 12px}
+  .lootje{padding:26px 18px 20px}
+}
 footer{text-align:center;color:var(--snow-dim);font-size:13px;margin-top:28px}
 @media (prefers-reduced-motion:reduce){.garland i{animation:none}.lootje{animation:none}}
 </style>
@@ -330,9 +350,9 @@ function pinForm(id,label,btnText,onsubmit,twice){
 function renderWheelActions(){
   const box=$("#wheel-actions"); box.replaceChildren();
   const steps=el("div",{class:"steps"},
-    el("span",{class:!S.trek?"now":""},el("b",{},"1"), " Iedereen kiest een pincode"),
-    el("span",{class:!S.trek&&allRegistered()?"now":""},el("b",{},"2"), " Maarten trekt"),
-    el("span",{class:S.trek?"now":""},el("b",{},"3"), " Iedereen draait"));
+    el("span",{class:!S.trek&&!allRegistered()?"now":""},el("b",{},"1"),"Pincode kiezen"),
+    el("span",{class:!S.trek&&allRegistered()?"now":""},el("b",{},"2"),"Maarten trekt"),
+    el("span",{class:S.trek?"now":""},el("b",{},"3"),"Rad draaien"));
   box.append(steps);
   if(!S.me){ box.append(el("p",{class:"status",text:"Kies eerst hierboven wie je bent."})); }
   else{
@@ -523,11 +543,13 @@ function drawWheel(t){
     wx.beginPath(); wx.moveTo(c,c); wx.arc(c,c,inner,a0,a1); wx.closePath();
     wx.fillStyle=SEG_COLORS[i]; wx.fill();
     wx.strokeStyle="rgba(255,243,208,.55)"; wx.lineWidth=1.5; wx.stroke();
-    wx.save(); wx.translate(c,c); wx.rotate(a0+SEG/2);
-    wx.textAlign="right"; wx.textBaseline="middle";
+    const mid=a0+SEG/2, norm=((mid%(Math.PI*2))+Math.PI*2)%(Math.PI*2);
+    const flip = norm>Math.PI/2 && norm<Math.PI*1.5;
+    wx.save(); wx.translate(c,c); wx.rotate(flip?mid+Math.PI:mid);
+    wx.textAlign=flip?"left":"right"; wx.textBaseline="middle";
     wx.fillStyle=(SEG_COLORS[i]==="#d9a441"||SEG_COLORS[i]==="#c2803a")?"#3a2508":"#fff8e6";
     wx.font="700 "+Math.max(11,W*0.042)+"px 'Bricolage Grotesque',system-ui,sans-serif";
-    wx.fillText(PEOPLE[i].name,inner-12,0);
+    wx.fillText(PEOPLE[i].name,flip?-(inner-12):inner-12,0);
     wx.restore();
   }
   const n=30, speed=S.spinning?12:2.2;
