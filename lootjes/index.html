@@ -150,7 +150,7 @@ const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const $=s=>document.querySelector(s);
 const el=(tag,props={},...kids)=>{const e=document.createElement(tag);for(const k in props){if(k==="class")e.className=props[k];else if(k==="text")e.textContent=props[k];else if(k.startsWith("on"))e.addEventListener(k.slice(2),props[k]);else e.setAttribute(k,props[k]);}for(const c of kids)if(c!=null)e.append(c);return e;};
 
-const S={screen:"who",me:null,mine:null,lists:{},claims:{},revealed:{},trek:null,owner:false,confirmReset:false,busy:false,spinning:false,F:null,focusList:null};
+const S={screen:"who",me:null,mine:null,lists:{},claims:{},draws:{},owner:false,confirmReset:false,busy:false,spinning:false,F:null,focusList:null};
 
 /* ---------- lootjes ---------- */
 function derangement(ids){
@@ -160,20 +160,33 @@ function derangement(ids){
 }
 const seal=(g,r)=>btoa(unescape(encodeURIComponent(g+"|"+r))).split("").reverse().join("");
 const unseal=(g,code)=>{try{const t=decodeURIComponent(escape(atob(String(code).split("").reverse().join(""))));const [a,b]=t.split("|");return a===g&&byId[b]?b:null;}catch(e){return null;}};
-const myTarget=()=>S.trek&&S.me?unseal(S.me,S.trek.lootjes[S.me]):null;
+const IDS=PEOPLE.map(p=>p.id);
+const hasDrawn=id=>!!(S.draws[id]&&S.draws[id].wrapped);
+const myTarget=()=>S.me&&hasDrawn(S.me)?unseal(S.me,S.draws[S.me].wrapped):null;
+/* Kies een lootje uit de pot. Nooit jezelf, en nooit zo dat de laatste persoon alleen zichzelf overhoudt. */
+function choose(me,draws){
+  const taken=new Set(), drawn=new Set();
+  for(const g of IDS){ const d=draws[g]; if(d&&d.wrapped){ drawn.add(g); const r=unseal(g,d.wrapped); if(r) taken.add(r); } }
+  const pool=IDS.filter(r=>r!==me&&!taken.has(r));
+  const rest=IDS.filter(g=>g!==me&&!drawn.has(g));
+  if(rest.length===1&&pool.includes(rest[0])) return rest[0];
+  const a=new Uint32Array(1); crypto.getRandomValues(a); return pool[a[0]%pool.length];
+}
 
 /* ---------- opslag ---------- */
 let store=null;
 function makeLocalStore(){
   const key="leguit-local-v3"; let d={}; try{d=JSON.parse(localStorage.getItem(key))||{};}catch(e){}
-  for(const k of ["lijstjes","geclaimd","onthuld"]) d[k] ||= {};
-  const fire=()=>{S.lists=d.lijstjes;S.claims=d.geclaimd;S.revealed=d.onthuld;S.trek=d.trek&&d.trek.lootjes?d.trek:null;soft();};
+  for(const k of ["lijstjes","geclaimd","deelnemers"]) d[k] ||= {};
+  const fire=()=>{S.lists=d.lijstjes;S.claims=d.geclaimd;S.draws=d.deelnemers;soft();};
   const save=()=>{try{localStorage.setItem(key,JSON.stringify(d));}catch(e){}fire();return Promise.resolve();};
   setTimeout(fire,0);
   return {saveList:(id,items)=>{d.lijstjes[id]={items};return save();},
     claim:(id,itemId,who)=>{d.geclaimd[id] ||= {claims:{}};d.geclaimd[id].claims[itemId]=who;return save();},
-    setTrek:t=>{d.trek=t;return save();},clearTrek:()=>{d.trek=null;d.onthuld={};return save();},
-    reveal:id=>{d.onthuld[id]={at:Date.now()};return save();}};
+    draw:async me=>{ if(d.deelnemers[me]&&d.deelnemers[me].wrapped) return unseal(me,d.deelnemers[me].wrapped);
+      const r=choose(me,d.deelnemers); d.deelnemers[me]={wrapped:seal(me,r),at:Date.now()}; try{localStorage.setItem(key,JSON.stringify(d));}catch(e){} return r; },
+    flush:()=>{fire();},
+    reset:()=>{d.deelnemers={};return save();}};
 }
 function makeFirebaseStore(F){
   const {db,fs}=F; let answered=false;
@@ -184,14 +197,21 @@ function makeFirebaseStore(F){
   const col=n=>fs.collection(db,n),docr=(n,id)=>fs.doc(db,n,id);
   fs.onSnapshot(col("lijstjes"),s=>{if(!s.metadata.fromCache)ok();S.lists=toMap(s);soft();},fail);
   fs.onSnapshot(col("geclaimd"),s=>{S.claims=toMap(s);soft();},fail);
-  fs.onSnapshot(col("onthuld"),s=>{S.revealed=toMap(s);soft();},fail);
-  fs.onSnapshot(docr("trekking","huidig"),s=>{const v=s.exists()?s.data():null;S.trek=v&&v.lootjes?v:null;if(!S.trek)S.mine=null;soft();},fail);
+  fs.onSnapshot(col("deelnemers"),s=>{S.draws=toMap(s);soft();},fail);
   const guard=p=>p.catch(e=>{showBanner(e&&e.code==="permission-denied"?"Dat mag helaas niet.":"Opslaan lukte niet. Controleer je internet en probeer het nog eens.");throw e;});
   return {saveList:(id,items)=>guard(fs.setDoc(docr("lijstjes",id),{items})),
     claim:(id,itemId,who)=>guard(fs.setDoc(docr("geclaimd",id),{claims:{[itemId]:who}},{merge:true})),
-    setTrek:t=>guard(fs.setDoc(docr("trekking","huidig"),t)),
-    clearTrek:async()=>{await guard(fs.deleteDoc(docr("trekking","huidig")));for(const id of Object.keys(S.revealed))await guard(fs.deleteDoc(docr("onthuld",id)));},
-    reveal:id=>guard(fs.setDoc(docr("onthuld",id),{at:Date.now()}))};
+    /* trekken in een transactie: twee mensen tegelijk kunnen nooit dezelfde naam krijgen */
+    draw:me=>guard(fs.runTransaction(db,async tx=>{
+      const snaps=await Promise.all(IDS.map(id=>tx.get(docr("deelnemers",id))));
+      const draws={}; snaps.forEach((sn,i)=>{ if(sn.exists()) draws[IDS[i]]=sn.data(); });
+      if(draws[me]&&draws[me].wrapped) return unseal(me,draws[me].wrapped);
+      const r=choose(me,draws);
+      tx.set(docr("deelnemers",me),{wrapped:seal(me,r),at:Date.now()});
+      return r;
+    })),
+    flush:()=>{},
+    reset:async()=>{for(const id of IDS) if(S.draws[id]) await guard(fs.deleteDoc(docr("deelnemers",id)));}};
 }
 function showBanner(t){const b=$("#banner");b.textContent=t;b.hidden=false;}
 function hideBanner(){$("#banner").hidden=true;}
@@ -231,57 +251,52 @@ function whoScreen(s){
   const g=el("div",{class:"names"});
   for(const p of PEOPLE){
     const b=el("button",{class:"name",type:"button",id:"who-"+p.id,onclick:()=>{S.me=p.id;S.mine=null;go("spin");}},p.name);
-    if(S.trek&&S.revealed[p.id]) b.append(el("span",{class:"tick","aria-label":"heeft al gedraaid"},"✓"));
+    if(hasDrawn(p.id)) b.append(el("span",{class:"tick","aria-label":"heeft al getrokken"},"✓"));
     g.append(b);
   }
   s.append(g);
-  if(S.trek){ const n=PEOPLE.filter(p=>S.revealed[p.id]).length; s.append(el("p",{class:"muted"},n+" van de 10 hebben al gedraaid ✓")); }
+  const n=IDS.filter(hasDrawn).length; s.append(el("p",{class:"muted"},n?n+" van de 10 hebben al getrokken ✓":"Nog niemand heeft getrokken. Jij mag beginnen!"));
 }
 function orgPanel(){
   const o=el("div",{class:"org"},el("div",{class:"k"},"Alleen voor Maarten"));
-  if(!S.trek){
-    o.append(el("p",{class:"muted"},"Trek de lootjes voor iedereen tegelijk. Niemand trekt zichzelf, en ook jij ziet niet wie wie heeft."));
-    const b=el("button",{class:"btn gold",type:"button",id:"do-trek",onclick:doTrek},"Trek de lootjes"); if(S.busy)b.disabled=true; o.append(b);
-  }else{
-    const pr=el("div",{class:"progress"}); for(const p of PEOPLE) pr.append(el("span",{class:"pill"+(S.revealed[p.id]?" done":"")},p.name));
-    o.append(el("p",{class:"muted"},"De lootjes zijn getrokken. Groen = heeft al gedraaid."),pr);
-    if(!S.confirmReset) o.append(el("button",{class:"link",type:"button",onclick:()=>{S.confirmReset=true;render();}},"Opnieuw trekken"));
-    else o.append(el("p",{class:"muted"},"Weet je het zeker? Iedereen krijgt dan een nieuw lootje."),
-      el("div",{class:"stack"},el("button",{class:"btn",type:"button",onclick:async()=>{S.confirmReset=false;S.mine=null;try{await store.clearTrek();}catch(e){}render();}},"Ja, opnieuw trekken"),
-        el("button",{class:"btn ghost",type:"button",onclick:()=>{S.confirmReset=false;render();}},"Annuleren")));
-  }
+  const pr=el("div",{class:"progress"}); for(const p of PEOPLE) pr.append(el("span",{class:"pill"+(hasDrawn(p.id)?" done":"")},p.name));
+  o.append(el("p",{class:"muted"},"Groen = heeft al getrokken. Wie wie heeft, zie jij ook niet."),pr);
+  if(!S.confirmReset) o.append(el("button",{class:"link",type:"button",onclick:()=>{S.confirmReset=true;render();}},"Alles wissen en opnieuw beginnen"));
+  else o.append(el("p",{class:"muted"},"Weet je het zeker? Alle getrokken lootjes worden gewist en iedereen moet opnieuw trekken."),
+    el("div",{class:"stack"},el("button",{class:"btn",type:"button",onclick:async()=>{S.confirmReset=false;S.mine=null;try{await store.reset();}catch(e){}render();}},"Ja, alles wissen"),
+      el("button",{class:"btn ghost",type:"button",onclick:()=>{S.confirmReset=false;render();}},"Annuleren")));
   return o;
-}
-async function doTrek(){
-  if(!S.owner||S.trek||S.busy) return; S.busy=true; render();
-  try{const ids=PEOPLE.map(p=>p.id),pr=derangement(ids),l={};for(const g of ids)l[g]=seal(g,pr[g]);await store.setTrek({lootjes:l,jaar:2026,getrokken:Date.now()});}
-  catch(e){showBanner("Trekken lukte niet. Probeer het nog eens.");}
-  S.busy=false; render();
 }
 
 /* ---------- stap 2: draai ---------- */
 let wheel=null, wheelRot=0;
 function spinScreen(s){
   if(!S.me){queueMicrotask(()=>go("who"));return;}
-  const me=byId[S.me], target=myTarget();
-  s.append(el("div",{class:"stepnum"},"Stap 2 · Draai het rad"));
+  const me=byId[S.me], done=hasDrawn(S.me);
+  S.wheelNames=PEOPLE.filter(p=>p.id!==S.me);
+  s.append(el("div",{class:"stepnum"},"Stap 2 · Trek je lootje"));
   s.append(el("h2",{},"Hoi "+me.name+"!"));
-  const box=el("div",{class:"wheel-box"+(S.trek?"":" dim")},el("div",{class:"pointer",id:"pointer"}),el("canvas",{id:"wheel","aria-label":"Draaiwiel met alle namen"}),el("div",{class:"hub"},"🎁"));
-  if(!S.trek){
-    s.append(el("p",{class:"lead"},"De lootjes zijn nog niet getrokken. Maarten doet dat binnenkort. Kom dan terug!"),box);
-  }else if(!target){
-    s.append(el("p",{class:"lead"},"Er ging iets mis met jouw lootje. Vraag Maarten om opnieuw te trekken."),box);
-  }else{
-    s.append(el("p",{class:"lead"},S.revealed[S.me]?"Je hebt al gedraaid. Draai nog een keer om je lootje terug te zien.":"Druk op de knop. Het rad stopt bij jouw lootje."),box);
+  const box=el("div",{class:"wheel-box"},el("div",{class:"pointer",id:"pointer"}),el("canvas",{id:"wheel","aria-label":"Draaiwiel met de namen die je kunt trekken"}),el("div",{class:"hub"},"🎁"));
+  if(!done){
+    s.append(el("p",{class:"lead"},"Druk op Draai! Het rad kiest een naam uit de pot. Jij staat er zelf niet op."),box);
     s.append(el("div",{class:"stack"},
-      el("button",{class:"btn pulse",type:"button",id:"spin",onclick:e=>{e.currentTarget.disabled=true;spin(target);}},"Draai!"),
-      el("p",{class:"muted"},"Ben je niet "+me.name+"? Ga terug en kies je eigen naam.")));
+      el("button",{class:"btn pulse",type:"button",id:"spin",onclick:async e=>{
+        const btn=e.currentTarget; btn.disabled=true; btn.textContent="Even schudden…"; ac();
+        let r=null; try{ r=await store.draw(S.me); }catch(err){ btn.disabled=false; btn.textContent="Draai!"; return; }
+        if(!r||!byId[r]){ showBanner("Er ging iets mis bij het trekken. Probeer het nog eens."); btn.disabled=false; btn.textContent="Draai!"; return; }
+        btn.textContent="Draai!"; spin(r);
+      }},"Draai!"),
+      el("p",{class:"muted"},"Ben je niet "+me.name+"? Ga terug en kies je eigen naam. Je kunt maar één keer trekken.")));
+  }else{
+    s.append(el("p",{class:"lead"},"Je hebt al getrokken. Wil je je lootje nog eens zien?"),box);
+    s.append(el("div",{class:"stack"},
+      el("button",{class:"btn gold",type:"button",id:"spin",onclick:e=>{e.currentTarget.disabled=true;const r=myTarget();if(r)spin(r);}},"Laat mijn lootje zien")));
   }
   queueMicrotask(()=>{const c=$("#wheel"); if(c) wheel=makeWheel(c);});
 }
 
 function makeWheel(cv){
-  const ctx=cv.getContext("2d"); let W=0,dpr=1,raf=0; const N=PEOPLE.length, A=Math.PI*2/N;
+  const ctx=cv.getContext("2d"); let W=0,dpr=1,raf=0; const NAMES=S.wheelNames||PEOPLE, N=NAMES.length, A=Math.PI*2/N;
   const size=()=>{dpr=Math.min(devicePixelRatio||1,2);W=cv.getBoundingClientRect().width;cv.width=Math.max(1,W*dpr);cv.height=Math.max(1,W*dpr);};
   size();
   const draw=t=>{
@@ -290,13 +305,13 @@ function makeWheel(cv){
     const c=W/2,R=W/2-3,inner=R-16; ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,W);
     ctx.beginPath();ctx.arc(c,c,R,0,7);ctx.fillStyle="#6d1d26";ctx.fill();ctx.lineWidth=3;ctx.strokeStyle="#f2c46b";ctx.stroke();
     for(let i=0;i<N;i++){
-      const a0=wheelRot+i*A; ctx.beginPath();ctx.moveTo(c,c);ctx.arc(c,c,inner,a0,a0+A);ctx.closePath();ctx.fillStyle=SEG[i];ctx.fill();
+      const a0=wheelRot+i*A; ctx.beginPath();ctx.moveTo(c,c);ctx.arc(c,c,inner,a0,a0+A);ctx.closePath();const col=SEG[PEOPLE.indexOf(NAMES[i])%SEG.length]; ctx.fillStyle=col;ctx.fill();
       ctx.strokeStyle="rgba(255,243,208,.5)";ctx.lineWidth=1.2;ctx.stroke();
       const mid=a0+A/2, nm=((mid%(Math.PI*2))+Math.PI*2)%(Math.PI*2), flip=nm>Math.PI/2&&nm<Math.PI*1.5;
       ctx.save();ctx.translate(c,c);ctx.rotate(flip?mid+Math.PI:mid);ctx.textAlign=flip?"left":"right";ctx.textBaseline="middle";
-      ctx.fillStyle=(SEG[i]==="#d9a441"||SEG[i]==="#c2803a")?"#3a2508":"#fff8e6";
+      ctx.fillStyle=(col==="#d9a441"||col==="#c2803a")?"#3a2508":"#fff8e6";
       ctx.font="700 "+Math.max(11,W*0.046)+"px 'Bricolage Grotesque',system-ui,sans-serif";
-      ctx.fillText(PEOPLE[i].name,flip?-(inner-10):inner-10,0);ctx.restore();
+      ctx.fillText(NAMES[i].name,flip?-(inner-10):inner-10,0);ctx.restore();
     }
     const L=24, sp=S.spinning?14:2;
     for(let i=0;i<L;i++){const a=i/L*Math.PI*2,x=c+Math.cos(a)*(R-8),y=c+Math.sin(a)*(R-8);
@@ -316,7 +331,7 @@ function chime(){const a=ac();if(!a)return;try{[784,988,1175,1568].forEach((f,i)
 
 function spin(target){
   if(S.spinning) return;
-  const idx=PEOPLE.findIndex(p=>p.id===target), A=Math.PI*2/PEOPLE.length, TAU=Math.PI*2;
+  const NAMES=S.wheelNames||PEOPLE, idx=NAMES.findIndex(p=>p.id===target), A=Math.PI*2/NAMES.length, TAU=Math.PI*2; if(idx<0) return;
   ac(); S.spinning=true; renderChrome();
   const start=wheelRot; let end=-Math.PI/2-(idx+.5)*A+(Math.random()-.5)*A*.55; while(end<start+TAU*7) end+=TAU;
   const dur=reduced?700:6000, t0=performance.now(), ptr=$("#pointer"); let last=-1;
@@ -328,9 +343,8 @@ function spin(target){
     if(k<1) requestAnimationFrame(step);
     else{
       wheelRot=end%TAU; chime(); burst(); const b=$(".wheel-box"); b&&b.classList.add("win");
-      if(!S.revealed[S.me]) store.reveal(S.me).catch(()=>{});
       S.mine=target;
-      setTimeout(()=>{S.spinning=false;go("reveal");},reduced?200:1000);
+      setTimeout(()=>{S.spinning=false;store.flush();go("reveal");},reduced?200:1000);
     }
   };
   requestAnimationFrame(step);
