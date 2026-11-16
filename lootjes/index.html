@@ -159,7 +159,7 @@ footer{text-align:center;color:var(--snow-dim);font-size:13px;margin-top:28px}
   <header>
     <div class="eyebrow">Kerst 2026</div>
     <h1>De Familie Leguit <span>Lootjestrekmachine</span></h1>
-    <p class="sub">Draai aan het wiel, ontdek voor wie jij een cadeautje koopt, en zet je verlanglijstje erin.</p>
+    <p class="sub">Kies je naam, draai aan het rad en ontdek voor wie jij een cadeautje koopt. Zet ook je verlanglijstje erin.</p>
     <div class="garland" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
     <div id="banner" class="banner" hidden></div>
   </header>
@@ -326,127 +326,73 @@ function renderWho(){
   const box=$("#who"); box.replaceChildren();
   for(const p of PEOPLE){
     const b=el("button",{class:"chip",type:"button","aria-pressed":String(S.me===p.id),id:"who-"+p.id,onclick:()=>{
-      if(S.me!==p.id){ S.msg=null; S.editPin=false; S.confirmReset=false; }
+      if(S.me!==p.id){ S.msg=null; S.confirmReset=false; S.mine={}; $("#reveal").hidden=true; }
       S.me=p.id; try{localStorage.setItem("leguit-me",p.id);}catch(e){} render(); }},p.name);
     box.append(b);
   }
 }
-const allRegistered=()=>PEOPLE.every(p=>S.regs[p.id]&&S.regs[p.id].wrapped);
-function msgEl(){ if(!S.msg) return null; return el("p",{class:S.msg.ok?"okmsg":"err",role:"status"},S.msg.t); }
-
-function pinForm(id,label,btnText,onsubmit,twice){
-  const f=el("form",{class:"pinform",autocomplete:"off"});
-  f.append(el("label",{for:id+"-1",class:"status"},label));
-  f.append(el("input",{id:id+"-1",type:"password",inputmode:"numeric",minlength:"4",maxlength:"12",required:"",placeholder:"••••",autocomplete:"off","aria-label":"Pincode"}));
-  if(twice) f.append(el("input",{id:id+"-2",type:"password",inputmode:"numeric",minlength:"4",maxlength:"12",required:"",placeholder:"nog een keer",autocomplete:"off","aria-label":"Herhaal pincode"}));
-  const btn=el("button",{class:"btn",type:"submit"},btnText);
-  if(S.busy) btn.disabled=true;
-  f.append(btn);
-  const m=msgEl(); if(m) f.append(m);
-  f.addEventListener("submit",ev=>{ ev.preventDefault(); const a=$("#"+id+"-1").value, b=twice?$("#"+id+"-2").value:a; onsubmit(a,b); });
-  return f;
-}
+const seal=(giver,rid)=>btoa(unescape(encodeURIComponent(giver+"|"+rid))).split("").reverse().join("");
+const unseal=(giver,code)=>{ try{ const t=decodeURIComponent(escape(atob(String(code).split("").reverse().join("")))); const [g,r]=t.split("|"); return g===giver&&byId[r]?r:null; }catch(e){ return null; } };
 
 function renderWheelActions(){
   const box=$("#wheel-actions"); box.replaceChildren();
-  const steps=el("div",{class:"steps"},
-    el("span",{class:!S.trek&&!allRegistered()?"now":""},el("b",{},"1"),"Pincode kiezen"),
-    el("span",{class:!S.trek&&allRegistered()?"now":""},el("b",{},"2"),"Maarten trekt"),
-    el("span",{class:S.trek?"now":""},el("b",{},"3"),"Rad draaien"));
-  box.append(steps);
-  if(!S.me){ box.append(el("p",{class:"status",text:"Kies eerst hierboven wie je bent."})); }
-  else{
-    const me=byId[S.me], reg=S.regs[S.me];
-    if(!S.trek){
-      if(!reg || S.editPin){
-        box.append(pinForm("reg", (reg?"Kies een nieuwe geheime pincode, ":"Kies een geheime pincode, ")+me.name+". Minimaal 4 cijfers. Onthoud hem goed: zonder pincode kun je je lootje niet openen.",
-          "Bewaar pincode", async(a,b)=>{
-            if(a.length<4){ S.msg={t:"De pincode moet minimaal 4 tekens hebben."}; return render(); }
-            if(a!==b){ S.msg={t:"De twee pincodes zijn niet hetzelfde. Probeer het nog eens."}; return render(); }
-            if(S.trek){ S.msg={t:"De lootjes zijn net getrokken. Je kunt je pincode nu niet meer wijzigen."}; return render(); }
-            S.busy=true; S.msg={ok:true,t:"Bezig met opslaan…"}; render();
-            try{ const r=await makeRegistration(a); await store.register(S.me,r); S.msg={ok:true,t:"Je pincode is bewaard."}; S.editPin=false; }
-            catch(e){ S.msg={t:"Opslaan lukte niet. Probeer het nog eens."}; }
-            S.busy=false; render();
-          }, true));
-        if(reg) box.append(el("button",{class:"btn ghost",type:"button",onclick:()=>{S.editPin=false;S.msg=null;render();}},"Annuleren"));
-      }else{
-        const m=msgEl(); if(m) box.append(m);
-        box.append(el("p",{class:"status",text:"Je pincode staat klaar, "+me.name+". Wacht tot Maarten de lootjes trekt; dat kan zodra alle tien een pincode hebben."}));
-        box.append(el("button",{class:"btn ghost",type:"button",onclick:()=>{S.editPin=true;S.msg=null;render();}},"Pincode wijzigen"));
-      }
+  box.append(el("div",{class:"steps",style:"grid-template-columns:repeat(2,1fr)"},
+    el("span",{class:!S.trek?"now":""},el("b",{},"1"),"Maarten trekt"),
+    el("span",{class:S.trek?"now":""},el("b",{},"2"),"Iedereen draait")));
+  if(!S.trek){
+    box.append(el("p",{class:"status",text:"De lootjes zijn nog niet getrokken. Zodra Maarten heeft getrokken, kan iedereen hier aan het rad draaien."}));
+  }else if(!S.me){
+    box.append(el("p",{class:"status",text:"De lootjes zijn getrokken! Kies hierboven je naam en draai aan het rad."}));
+  }else{
+    const me=byId[S.me], code=S.trek.lootjes[S.me], rid=code?unseal(S.me,code):null;
+    if(!rid){
+      box.append(el("p",{class:"status",text:"Er is voor jou geen lootje gevonden. Vraag Maarten om opnieuw te trekken."}));
+    }else if(!S.mine[S.me]){
+      box.append(el("p",{class:"status",text:"Jouw lootje ligt klaar, "+me.name+". Draai aan het rad!"}));
+      box.append(el("button",{class:"btn",type:"button",id:"spin",onclick:()=>{ if(S.spinning) return; S.mine[S.me]=rid; spinTo(S.me,rid); }},"Draai het rad"));
+      box.append(el("p",{class:"muted",text:"Ben je niet "+me.name+"? Kies dan eerst je eigen naam. Niet spieken bij een ander!"}));
     }else{
-      const known=S.mine[S.me];
-      if(!S.trek.lootjes[S.me]){
-        box.append(el("p",{class:"status",text:"Er is voor jou geen lootje gevonden. Vraag Maarten om opnieuw te trekken."}));
-      }else if(!known){
-        box.append(pinForm("open","Vul je pincode in en draai het rad, "+me.name+".","Draai het rad",async(pin)=>{
-          if(S.spinning||S.busy) return;
-          S.busy=true; S.msg={ok:true,t:"Lootje wordt geopend…"}; render();
-          try{
-            const rid=await openLootje(S.regs[S.me],pin,S.trek.lootjes[S.me]);
-            if(!byId[rid]) throw new Error("bad");
-            S.mine[S.me]=rid; S.msg=null; S.busy=false; render(); spinTo(S.me,rid);
-          }catch(e){
-            S.busy=false;
-            S.msg={t: e.message==="pin" ? "Die pincode klopt niet. Probeer het nog eens." : "Je lootje kon niet geopend worden. Vraag Maarten om opnieuw te trekken."};
-            render();
-          }
-        },false));
-        box.append(el("p",{class:"muted",text:"Pincode vergeten? Dan moet Maarten opnieuw trekken. Daarna kun je een nieuwe pincode kiezen."}));
-      }else{
-        box.append(el("p",{class:"status",text:"Je lootje is open, "+me.name+"."}));
-        box.append(el("div",{class:"row"},
-          el("button",{class:"btn",type:"button",onclick:()=>spinTo(S.me,known)},"Draai nog eens"),
-          el("button",{class:"btn ghost",type:"button",onclick:()=>showReveal(known)},"Toon mijn lootje"),
-          el("button",{class:"btn ghost",type:"button",onclick:()=>{delete S.mine[S.me];render();}},"Verberg")
-        ));
-      }
+      box.append(el("p",{class:"status",text:"Je lootje is open, "+me.name+"."}));
+      box.append(el("div",{class:"row"},
+        el("button",{class:"btn",type:"button",onclick:()=>spinTo(S.me,S.mine[S.me])},"Draai nog eens"),
+        el("button",{class:"btn ghost",type:"button",onclick:()=>showReveal(S.mine[S.me])},"Toon mijn lootje"),
+        el("button",{class:"btn ghost",type:"button",onclick:()=>{delete S.mine[S.me];render();}},"Verberg")));
     }
   }
-  // Organisator
   if(S.owner){
     const org=el("div",{class:"confirm",style:"display:grid;gap:10px;justify-items:center;width:100%"});
     org.append(el("div",{class:"eyebrow"},"Alleen voor Maarten"));
     if(!S.trek){
-      const n=PEOPLE.filter(p=>S.regs[p.id]).length;
-      org.append(el("p",{class:"status",text: allRegistered()? "Iedereen heeft een pincode. Je kunt trekken. Ook jij kunt daarna niet zien wie wie heeft." : "Nog "+(10-n)+" "+((10-n)===1?"persoon moet":"mensen moeten")+" een pincode kiezen voordat je kunt trekken."}));
+      org.append(el("p",{class:"status",text:"Trek de lootjes voor alle tien tegelijk. Niemand trekt zichzelf. Je ziet zelf niet wie wie heeft."}));
       const b=el("button",{class:"btn gold",type:"button",id:"do-trek",onclick:doTrek},"Trek de lootjes");
-      if(!allRegistered()||S.busy) b.disabled=true;
+      if(S.busy) b.disabled=true;
       org.append(b);
     }else if(!S.confirmReset){
       org.append(el("button",{class:"btn ghost",type:"button",onclick:()=>{S.confirmReset=true;render();}},"Opnieuw trekken"));
     }else{
       const n=Object.keys(S.revealed).length;
-      org.append(el("p",{class:"status",text:(n? n+" "+(n===1?"persoon heeft":"mensen hebben")+" hun lootje al gezien. ":"")+"Opnieuw trekken wist de huidige lootjes. Daarna kan iedereen zijn pincode wijzigen en trek je opnieuw."}));
+      org.append(el("p",{class:"status",text:(n? n+" "+(n===1?"persoon heeft":"mensen hebben")+" hun lootje al gezien. ":"")+"Opnieuw trekken wist alle lootjes en verdeelt ze opnieuw."}));
       org.append(el("div",{class:"row"},
         el("button",{class:"btn ghost",type:"button",onclick:()=>{S.confirmReset=false;render();}},"Annuleren"),
         el("button",{class:"btn",type:"button",onclick:async()=>{S.confirmReset=false; S.mine={}; try{ await store.clearTrek(); }catch(e){} render();}},"Ja, wis en trek opnieuw")));
     }
     box.append(org);
-  }else if(!S.trek && S.me){
-    box.append(el("p",{class:"muted",text:"Maarten trekt de lootjes zodra iedereen een pincode heeft."}));
   }
 }
 function renderProgress(){
   const box=$("#progress"); box.replaceChildren();
   const lab=$("#progress-label");
-  if(!S.trek){
-    const n=PEOPLE.filter(p=>S.regs[p.id]).length;
-    lab.textContent=n+" van de "+PEOPLE.length+" hebben een pincode";
-    for(const p of PEOPLE) box.append(el("span",{class:"pill"+(S.regs[p.id]?" done":"")},p.name));
-  }else{
-    const n=PEOPLE.filter(p=>S.revealed[p.id]).length;
-    lab.textContent=n+" van de "+PEOPLE.length+" hebben gedraaid";
-    for(const p of PEOPLE) box.append(el("span",{class:"pill"+(S.revealed[p.id]?" done":"")},p.name));
-  }
+  if(!S.trek){ lab.textContent=""; return; }
+  const n=PEOPLE.filter(p=>S.revealed[p.id]).length;
+  lab.textContent=n+" van de "+PEOPLE.length+" hebben gedraaid";
+  for(const p of PEOPLE) box.append(el("span",{class:"pill"+(S.revealed[p.id]?" done":"")},p.name));
 }
 async function doTrek(){
-  if(!S.owner||S.trek||!allRegistered()||S.busy) return;
+  if(!S.owner||S.trek||S.busy) return;
   S.busy=true; render();
   try{
     const ids=PEOPLE.map(p=>p.id), pr=derangement(ids), lootjes={};
-    for(const g of ids) lootjes[g]=await encryptFor(S.regs[g],pr[g]);
+    for(const g of ids) lootjes[g]=seal(g,pr[g]);
     await store.setTrek({lootjes,jaar:2026,getrokken:Date.now()});
   }catch(e){ showBanner("Trekken lukte niet. Probeer het nog eens.","warn"); }
   S.busy=false; render();
