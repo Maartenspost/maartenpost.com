@@ -1,0 +1,58 @@
+rules_version = '2';
+// Beveiligingsregels voor De Familie Leguit Lootjestrekmachine.
+// Plak deze tekst in Firebase > Firestore Database > Regels, en vervang het e-mailadres.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOrganisator() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.lower() in ['JOUW-GMAIL@gmail.com'];
+    }
+    function isPersoon(id) {
+      return id in ['janwillem','gabrielle','willemijn','maarten','jesse','antoinette','sara','nine','jelle','janica'];
+    }
+    function erIsGetrokken() {
+      return exists(/databases/$(database)/documents/trekking/huidig);
+    }
+
+    // De trekking: iedereen leest (alles is versleuteld), alleen de organisator schrijft.
+    match /trekking/{doc} {
+      allow read: if true;
+      allow write: if isOrganisator() && doc == 'huidig';
+    }
+
+    // Pincodes (versleutelde sleutels): alleen te wijzigen zolang er nog niet getrokken is.
+    match /deelnemers/{id} {
+      allow read: if true;
+      allow write: if isPersoon(id) && !erIsGetrokken()
+        && request.resource.data.keys().hasOnly(['pub','salt','iv','wrapped','iter','at'])
+        && request.resource.data.wrapped is string && request.resource.data.wrapped.size() < 4000;
+      allow delete: if isOrganisator();
+    }
+
+    // Wie heeft al gedraaid.
+    match /onthuld/{id} {
+      allow read: if true;
+      allow create, update: if isPersoon(id) && erIsGetrokken()
+        && request.resource.data.keys().hasOnly(['at']);
+      allow delete: if isOrganisator();
+    }
+
+    // Verlanglijstjes.
+    match /lijstjes/{id} {
+      allow read: if true;
+      allow write: if isPersoon(id)
+        && request.resource.data.keys().hasOnly(['items'])
+        && request.resource.data.items is list && request.resource.data.items.size() <= 60;
+    }
+
+    // "Ik koop dit".
+    match /geclaimd/{id} {
+      allow read: if true;
+      allow write: if isPersoon(id)
+        && request.resource.data.keys().hasOnly(['claims'])
+        && request.resource.data.claims.size() <= 60;
+    }
+  }
+}

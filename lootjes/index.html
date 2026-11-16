@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0c1f1a">
+<meta property="og:title" content="De Familie Leguit Lootjestrekmachine">
+<meta property="og:description" content="Draai aan het rad en ontdek voor wie jij een kerstcadeautje koopt.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%81%3C/text%3E%3C/svg%3E">
+<title>Familie Leguit Lootjestrekmachine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap">
+<style>
+/* Layout: one centred column on a winter night; the wheel is the hero, wishlists below in tabs. Deliberately single (dark) theme: a night sky with snow. */
+:root{
+  --night:#0c1f1a; --night-2:#123029; --pine:#1c4a3c; --pine-2:#24604d;
+  --cranberry:#b8323f; --cranberry-2:#d9535e; --gold:#f2c46b; --gold-soft:#f7dca0;
+  --snow:#f4f1ea; --snow-dim:#b9c9c1; --line:rgba(244,241,234,.14);
+  --f-display:"Mountains of Christmas","Georgia",serif;
+  --f-body:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{margin:0}
+body{background:radial-gradient(120% 80% at 50% 0%,#17392f 0%,var(--night) 60%) fixed,var(--night);color:var(--snow);font-family:var(--f-body);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:env(safe-area-inset-top,0px) calc(48px + env(safe-area-inset-bottom,0px));overflow-x:hidden}
+#snow{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;max-width:760px;margin:0 auto}
+header{text-align:center;padding-block:28px 8px}
+.eyebrow{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(34px,8vw,64px);line-height:1.02;margin:6px 0 4px;text-wrap:balance;color:var(--snow);text-shadow:0 0 18px rgba(242,196,107,.35)}
+h1 span{color:var(--gold)}
+.sub{color:var(--snow-dim);margin:0}
+.garland{display:flex;justify-content:center;gap:14px;margin:14px 0 0}
+.garland i{width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold);animation:tw 1.6s infinite ease-in-out}
+.garland i:nth-child(3n+2){background:var(--cranberry-2);box-shadow:0 0 10px var(--cranberry-2);animation-delay:.4s}
+.garland i:nth-child(3n){background:#8fe3b6;box-shadow:0 0 10px #8fe3b6;animation-delay:.8s}
+@keyframes tw{50%{opacity:.25}}
+
+.banner{border:1px solid var(--line);background:rgba(18,48,41,.8);padding:10px 14px;border-radius:10px;font-size:14px;color:var(--snow-dim);margin-top:14px}
+.banner[data-kind="warn"]{border-color:rgba(242,196,107,.5);color:var(--gold-soft)}
+
+section.card{background:rgba(18,48,41,.82);backdrop-filter:blur(4px);border:1px solid var(--line);border-radius:18px;padding:20px;margin-top:18px}
+h2{font-family:var(--f-display);font-size:30px;margin:0 0 4px;color:var(--gold-soft);font-weight:700}
+.muted{color:var(--snow-dim);font-size:14px;margin:0}
+
+.who{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{font:inherit;font-size:15px;border:1px solid var(--line);background:var(--night-2);color:var(--snow);padding:8px 14px;border-radius:999px;cursor:pointer;transition:background .2s,border-color .2s,transform .1s}
+.chip:hover{border-color:var(--gold)}
+.chip:active{transform:scale(.97)}
+.chip[aria-pressed="true"]{background:var(--cranberry);border-color:var(--cranberry-2);font-weight:600}
+.chip .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--gold);margin-left:6px;vertical-align:middle;box-shadow:0 0 6px var(--gold)}
+
+.tabs{display:flex;gap:6px;justify-content:center;margin-top:22px}
+.tab{font:inherit;font-weight:600;background:transparent;color:var(--snow-dim);border:1px solid var(--line);padding:9px 18px;border-radius:999px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--snow);color:var(--night);border-color:var(--snow)}
+
+.wheel-zone{display:grid;place-items:center;gap:16px;margin-top:8px}
+.wheel-box{position:relative;width:min(92vw,440px);aspect-ratio:1;max-width:100%}
+#wheel{width:100%;height:100%;display:block}
+.pointer{position:absolute;left:50%;top:-6px;transform:translateX(-50%);width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:34px solid var(--gold);filter:drop-shadow(0 3px 6px rgba(0,0,0,.5)) drop-shadow(0 0 8px rgba(242,196,107,.6));z-index:2}
+.hub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:22%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff6dc,var(--gold) 45%,#a87a26);border:3px solid #fff3d0;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;color:#5a3b0c;font-size:clamp(14px,4vw,22px);box-shadow:0 4px 18px rgba(0,0,0,.45)}
+
+.btn{font:inherit;font-weight:800;font-size:18px;letter-spacing:.02em;border:none;border-radius:999px;padding:14px 30px;cursor:pointer;background:linear-gradient(180deg,var(--cranberry-2),var(--cranberry));color:#fff;box-shadow:0 6px 0 #7d1f29,0 10px 24px rgba(0,0,0,.35);transition:transform .1s,box-shadow .1s}
+.btn:hover{filter:brightness(1.07)}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #7d1f29,0 4px 10px rgba(0,0,0,.35)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn.ghost{background:transparent;color:var(--snow-dim);box-shadow:none;border:1px solid var(--line);font-size:14px;font-weight:600;padding:9px 16px}
+.btn.gold{background:linear-gradient(180deg,var(--gold-soft),var(--gold));color:#4a3009;box-shadow:0 6px 0 #9c7128,0 10px 24px rgba(0,0,0,.35)}
+.center{text-align:center}
+.row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center}
+.status{font-size:14px;color:var(--snow-dim);text-align:center}
+.progress{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:6px}
+.pill{font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);color:var(--snow-dim)}
+.pill.done{border-color:rgba(143,227,182,.5);color:#bff0d4}
+.confirm{border:1px dashed rgba(242,196,107,.5);border-radius:12px;padding:12px;margin-top:10px}
+
+/* reveal */
+.reveal{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:rgba(5,14,11,.7);backdrop-filter:blur(3px);
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.lootje{position:relative;max-width:380px;width:100%;background:var(--snow);color:#2b1a12;border-radius:6px;padding:28px 24px 24px;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);transform:rotate(-2deg);animation:pop .6s cubic-bezier(.2,1.4,.4,1)}
+.lootje::before{content:"";position:absolute;inset:8px;border:2px dashed rgba(184,50,63,.45);border-radius:4px;pointer-events:none}
+.lootje .k{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--cranberry);font-weight:700}
+.lootje .naam{font-family:var(--f-display);font-size:clamp(44px,12vw,64px);line-height:1;margin:10px 0 6px;color:#1c4a3c}
+.lootje p{margin:0 0 16px;color:#5b4a3f}
+@keyframes pop{from{transform:scale(.3) rotate(-14deg);opacity:0}to{transform:scale(1) rotate(-2deg);opacity:1}}
+
+/* wishlists */
+.lists{display:grid;gap:12px;margin-top:14px}
+.list{border:1px solid var(--line);border-radius:14px;background:rgba(12,31,26,.6)}
+.list > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:12px 14px}
+.list > summary::-webkit-details-marker{display:none}
+.avatar{width:38px;height:38px;flex:none;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff;background:var(--pine-2);border:2px solid rgba(255,255,255,.15)}
+.list .nm{font-weight:600;font-size:17px}
+.list .cnt{margin-left:auto;font-size:13px;color:var(--snow-dim)}
+.tag{font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--gold);color:#4a3009;font-weight:700}
+.tag.red{background:var(--cranberry);color:#fff}
+.tag,.list .cnt{white-space:nowrap}
+.lootje .btn.ghost{color:#5b4a3f;border-color:rgba(43,26,18,.25)}
+.items{list-style:none;margin:0;padding:0 14px 12px;display:grid;gap:8px}
+.item{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:10px;background:rgba(244,241,234,.05);border:1px solid var(--line)}
+.item .body{flex:1;min-width:0}
+.item .t{font-weight:600;overflow-wrap:anywhere}
+.item .meta{font-size:13px;color:var(--snow-dim);display:flex;flex-wrap:wrap;gap:10px}
+.item a{color:var(--gold-soft);overflow-wrap:anywhere}
+.item.claimed .t{text-decoration:line-through;text-decoration-color:var(--cranberry-2);opacity:.75}
+.mini{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--line);background:transparent;color:var(--snow);padding:5px 10px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.mini:hover{border-color:var(--gold)}
+.mini.on{background:var(--pine-2);border-color:#8fe3b6}
+.empty{color:var(--snow-dim);font-size:14px;padding:0 14px 14px;margin:0}
+form.add{display:grid;grid-template-columns:1fr;gap:8px;padding:0 14px 14px}
+@media (min-width:560px){form.add{grid-template-columns:2fr 1.4fr .8fr auto}}
+input{font:inherit;font-size:15px;background:var(--night);color:var(--snow);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0;width:100%}
+input:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+input::placeholder{color:#7f948a}
+form.add .btn{font-size:15px;padding:10px 18px;box-shadow:0 3px 0 #7d1f29}
+.pinform{display:grid;gap:10px;justify-items:center;width:100%;max-width:340px}
+.pinform input{text-align:center;font-size:20px;letter-spacing:.3em}
+.err{color:#ffb3b9;font-size:14px;font-weight:600;margin:0}
+.okmsg{color:#bff0d4;font-size:15px;font-weight:600;margin:0}
+.steps{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;font-size:13px;color:var(--snow-dim)}
+.steps b{color:var(--gold-soft)}
+.steps span{border:1px solid var(--line);border-radius:999px;padding:4px 10px}
+.steps span.now{border-color:var(--gold);color:var(--snow)}
+.linkbtn{font:inherit;font-size:13px;background:none;border:none;color:var(--snow-dim);text-decoration:underline;cursor:pointer;padding:4px}
+footer{text-align:center;color:var(--snow-dim);font-size:13px;margin-top:28px}
+@media (prefers-reduced-motion:reduce){.garland i{animation:none}.lootje{animation:none}}
+</style>
+</head>
+<body>
+
+
+<canvas id="snow" aria-hidden="true"></canvas>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Kerst 2026</div>
+    <h1>De Familie Leguit <span>Lootjestrekmachine</span></h1>
+    <p class="sub">Draai aan het wiel, ontdek voor wie jij een cadeautje koopt, en zet je verlanglijstje erin.</p>
+    <div class="garland" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div id="banner" class="banner" hidden></div>
+  </header>
+
+  <section class="card" aria-labelledby="who-h">
+    <h2 id="who-h">Wie ben jij?</h2>
+    <p class="muted">Kies je eigen naam. Dit onthoudt de machine op dit apparaat.</p>
+    <div class="who" id="who"></div>
+  </section>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-wiel" aria-selected="true" aria-controls="view-wiel">Het rad</button>
+    <button class="tab" role="tab" id="tab-lijst" aria-selected="false" aria-controls="view-lijst">Verlanglijstjes</button>
+  </div>
+
+  <section class="card" id="view-wiel" role="tabpanel" aria-labelledby="tab-wiel">
+    <div class="wheel-zone">
+      <div class="wheel-box">
+        <div class="pointer" aria-hidden="true"></div>
+        <canvas id="wheel" role="img" aria-label="Draaiwiel met de namen van de familie"></canvas>
+        <div class="hub" aria-hidden="true">Ho ho!</div>
+      </div>
+      <div id="wheel-actions" class="center" style="display:grid;gap:12px;justify-items:center"></div>
+      <div>
+        <div class="status" id="progress-label"></div>
+        <div class="progress" id="progress"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="view-lijst" role="tabpanel" aria-labelledby="tab-lijst" hidden>
+    <h2>Verlanglijstjes</h2>
+    <p class="muted">Zet erin wat je graag wilt. Bij de lijstjes van anderen kun je aangeven dat jij iets koopt. Dat ziet de eigenaar van het lijstje niet.</p>
+    <div class="lists" id="lists"></div>
+  </section>
+
+  <footer><div>Met liefde gemaakt voor de familie Leguit · ❄</div><div id="orgbar" style="margin-top:8px"></div></footer>
+</div>
+
+<div class="reveal" id="reveal" hidden>
+  <div class="lootje" role="dialog" aria-modal="true" aria-labelledby="lootje-naam">
+    <div class="k">Jouw lootje</div>
+    <div class="naam" id="lootje-naam"></div>
+    <p>Jij koopt dit jaar een cadeautje voor deze persoon. Niet verklappen!</p>
+    <div class="row">
+      <button class="btn gold" id="to-list">Bekijk verlanglijstje</button>
+      <button class="btn ghost" id="close-reveal">Sluiten</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+const PEOPLE = [
+  {id:"janwillem",name:"Jan Willem"},{id:"gabrielle",name:"Gabrielle"},{id:"willemijn",name:"Willemijn"},
+  {id:"maarten",name:"Maarten"},{id:"jesse",name:"Jesse"},{id:"antoinette",name:"Antoinette"},
+  {id:"sara",name:"Sara"},{id:"nine",name:"Nine"},{id:"jelle",name:"Jelle"},{id:"janica",name:"Janica"}
+];
+const byId = Object.fromEntries(PEOPLE.map(p=>[p.id,p]));
+const SEG_COLORS = ["#b8323f","#1c4a3c","#d9a441","#24604d","#8e2431","#2f6b57","#c2803a","#1a3f34","#a62b38","#3a7a63"];
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $ = s=>document.querySelector(s);
+const el = (tag,props={},...kids)=>{const e=document.createElement(tag);for(const k in props){if(k==="class")e.className=props[k];else if(k==="text")e.textContent=props[k];else if(k.startsWith("on"))e.addEventListener(k.slice(2),props[k]);else e.setAttribute(k,props[k]);}for(const c of kids)if(c!=null)e.append(c);return e;};
+
+/* ---------- state ---------- */
+const S = { me:null, lists:{}, claims:{}, revealed:{}, regs:{}, trek:null, tab:"wiel", confirmReset:false, spinning:false,
+  open:new Set(), owner:false, mine:{}, msg:null, busy:false, editPin:false, shared:false };
+// S.mine[personId] = receiverId, alleen in het geheugen van dit tabblad (na juiste pincode)
+try{ S.me = localStorage.getItem("leguit-me"); if(!byId[S.me]) S.me=null; }catch(e){}
+
+/* ---------- crypto ----------
+   Iedereen kiest een pincode. In de browser wordt een sleutelpaar gemaakt; de geheime sleutel
+   wordt versleuteld met (een afgeleide van) de pincode. Bij het trekken wordt ieders lootje
+   versleuteld met diens publieke sleutel. Alleen wie de pincode kent, kan het lootje openen.
+   De trekking zelf staat nergens leesbaar opgeslagen. */
+const te=new TextEncoder(), td=new TextDecoder();
+const b64 = buf => { const a=new Uint8Array(buf); let s=""; for(let i=0;i<a.length;i++) s+=String.fromCharCode(a[i]); return btoa(s); };
+const unb64 = s => Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+const ITER = 310000;
+async function pinKey(pin,salt){
+  const base=await crypto.subtle.importKey("raw",te.encode(pin.normalize("NFC")),"PBKDF2",false,["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:ITER,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+}
+async function makeRegistration(pin){
+  const kp=await crypto.subtle.generateKey({name:"RSA-OAEP",modulusLength:2048,publicExponent:new Uint8Array([1,0,1]),hash:"SHA-256"},true,["encrypt","decrypt"]);
+  const pub=await crypto.subtle.exportKey("jwk",kp.publicKey);
+  const priv=await crypto.subtle.exportKey("pkcs8",kp.privateKey);
+  const salt=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12));
+  const k=await pinKey(pin,salt);
+  const wrapped=await crypto.subtle.encrypt({name:"AES-GCM",iv},k,priv);
+  return {pub:{kty:pub.kty,n:pub.n,e:pub.e,alg:pub.alg},salt:b64(salt),iv:b64(iv),wrapped:b64(wrapped),iter:ITER,at:Date.now()};
+}
+async function encryptFor(reg,text){
+  const key=await crypto.subtle.importKey("jwk",{...reg.pub,ext:true,key_ops:["encrypt"]},{name:"RSA-OAEP",hash:"SHA-256"},false,["encrypt"]);
+  return b64(await crypto.subtle.encrypt({name:"RSA-OAEP"},key,te.encode(text)));
+}
+async function openLootje(reg,pin,ct){
+  const k=await pinKey(pin,unb64(reg.salt));
+  let priv;
+  try{ priv=await crypto.subtle.decrypt({name:"AES-GCM",iv:unb64(reg.iv)},k,unb64(reg.wrapped)); }
+  catch(e){ throw new Error("pin"); }
+  const pk=await crypto.subtle.importKey("pkcs8",priv,{name:"RSA-OAEP",hash:"SHA-256"},false,["decrypt"]);
+  return td.decode(await crypto.subtle.decrypt({name:"RSA-OAEP"},pk,unb64(ct)));
+}
+function derangement(ids){
+  const rnd=n=>{ const a=new Uint32Array(1); const lim=Math.floor(0x100000000/n)*n; let x; do{ crypto.getRandomValues(a); x=a[0]; }while(x>=lim); return x%n; };
+  let a;
+  do{ a=[...ids]; for(let i=a.length-1;i>0;i--){ const j=rnd(i+1); [a[i],a[j]]=[a[j],a[i]]; } }
+  while(a.some((x,i)=>x===ids[i]));
+  return Object.fromEntries(ids.map((id,i)=>[id,a[i]]));
+}
+
+/* ---------- storage ---------- */
+let store=null;
+function makeLocalStore(){
+  const key="leguit-local-v2";
+  let d={}; try{ d=JSON.parse(localStorage.getItem(key))||{}; }catch(e){}
+  for(const k of ["lijstjes","geclaimd","onthuld","deelnemers"]) d[k] ||= {};
+  const fire=()=>{ S.lists=d.lijstjes; S.claims=d.geclaimd; S.revealed=d.onthuld; S.regs=d.deelnemers; S.trek=d.trek&&d.trek.lootjes?d.trek:null; render(); };
+  const save=()=>{ try{ localStorage.setItem(key,JSON.stringify(d)); }catch(e){} fire(); return Promise.resolve(); };
+  setTimeout(fire,0);
+  return {
+    saveList:(id,items)=>{ d.lijstjes[id]={items}; return save(); },
+    claim:(id,itemId,who)=>{ d.geclaimd[id] ||= {claims:{}}; d.geclaimd[id].claims[itemId]=who; return save(); },
+    register:(id,reg)=>{ d.deelnemers[id]=reg; return save(); },
+    setTrek:(t)=>{ d.trek=t; return save(); },
+    clearTrek:()=>{ d.trek=null; d.onthuld={}; return save(); },
+    reveal:(id)=>{ d.onthuld[id]={at:Date.now()}; return save(); }
+  };
+}
+function makeFirebaseStore(F){
+  const {db,fs}=F;
+  let answered=false;
+  const timer=setTimeout(()=>{ if(!answered) showBanner("De gegevens zijn nog niet bereikbaar. Even geduld, of controleer je internetverbinding.","warn"); },10000);
+  const ok=()=>{ if(!answered){ answered=true; clearTimeout(timer); hideBanner(); } };
+  const fail=()=>{ ok(); showBanner("Er ging iets mis met het laden. Herlaad de pagina over een paar minuten.","warn"); };
+  const toMap=snap=>Object.fromEntries(snap.docs.map(x=>[x.id,x.data()]));
+  const col=n=>fs.collection(db,n), docr=(n,id)=>fs.doc(db,n,id);
+  fs.onSnapshot(col("lijstjes"),s=>{ if(!s.metadata.fromCache) ok(); S.lists=toMap(s); render(); },fail);
+  fs.onSnapshot(col("geclaimd"),s=>{ S.claims=toMap(s); render(); },fail);
+  fs.onSnapshot(col("onthuld"),s=>{ S.revealed=toMap(s); render(); },fail);
+  fs.onSnapshot(col("deelnemers"),s=>{ S.regs=toMap(s); render(); },fail);
+  fs.onSnapshot(docr("trekking","huidig"),s=>{ const v=s.exists()?s.data():null; const was=!!S.trek; S.trek=v&&v.lootjes?v:null; if(was&&!S.trek) S.mine={}; render(); },fail);
+  const guard=p=>p.catch(e=>{
+    if(e&&e.code==="permission-denied") showBanner("Dit mag niet (meer). Pincodes kun je bijvoorbeeld niet wijzigen nadat er getrokken is.","warn");
+    else showBanner("Opslaan lukte niet. Controleer je internetverbinding en probeer het nog eens.","warn");
+    throw e; });
+  return {
+    saveList:(id,items)=>guard(fs.setDoc(docr("lijstjes",id),{items})),
+    claim:(id,itemId,who)=>guard(fs.setDoc(docr("geclaimd",id),{claims:{[itemId]:who}},{merge:true})),
+    register:(id,reg)=>guard(fs.setDoc(docr("deelnemers",id),reg)),
+    setTrek:(t)=>guard(fs.setDoc(docr("trekking","huidig"),t)),
+    clearTrek:async()=>{ await guard(fs.deleteDoc(docr("trekking","huidig"))); for(const id of Object.keys(S.revealed)) await guard(fs.deleteDoc(docr("onthuld",id))); },
+    reveal:(id)=>guard(fs.setDoc(docr("onthuld",id),{at:Date.now()}))
+  };
+}
+function showBanner(t,kind){ const b=$("#banner"); b.textContent=t; b.dataset.kind=kind||""; b.hidden=false; }
+function hideBanner(){ $("#banner").hidden=true; }
+
+/* ---------- render ---------- */
+function render(){ renderWho(); renderWheelActions(); renderProgress(); renderLists(); }
+function renderWho(){
+  const box=$("#who"); box.replaceChildren();
+  for(const p of PEOPLE){
+    const b=el("button",{class:"chip",type:"button","aria-pressed":String(S.me===p.id),id:"who-"+p.id,onclick:()=>{
+      if(S.me!==p.id){ S.msg=null; S.editPin=false; S.confirmReset=false; }
+      S.me=p.id; try{localStorage.setItem("leguit-me",p.id);}catch(e){} render(); }},p.name);
+    box.append(b);
+  }
+}
+const allRegistered=()=>PEOPLE.every(p=>S.regs[p.id]&&S.regs[p.id].wrapped);
+function msgEl(){ if(!S.msg) return null; return el("p",{class:S.msg.ok?"okmsg":"err",role:"status"},S.msg.t); }
+
+function pinForm(id,label,btnText,onsubmit,twice){
+  const f=el("form",{class:"pinform",autocomplete:"off"});
+  f.append(el("label",{for:id+"-1",class:"status"},label));
+  f.append(el("input",{id:id+"-1",type:"password",inputmode:"numeric",minlength:"4",maxlength:"12",required:"",placeholder:"••••",autocomplete:"off","aria-label":"Pincode"}));
+  if(twice) f.append(el("input",{id:id+"-2",type:"password",inputmode:"numeric",minlength:"4",maxlength:"12",required:"",placeholder:"nog een keer",autocomplete:"off","aria-label":"Herhaal pincode"}));
+  const btn=el("button",{class:"btn",type:"submit"},btnText);
+  if(S.busy) btn.disabled=true;
+  f.append(btn);
+  const m=msgEl(); if(m) f.append(m);
+  f.addEventListener("submit",ev=>{ ev.preventDefault(); const a=$("#"+id+"-1").value, b=twice?$("#"+id+"-2").value:a; onsubmit(a,b); });
+  return f;
+}
+
+function renderWheelActions(){
+  const box=$("#wheel-actions"); box.replaceChildren();
+  const steps=el("div",{class:"steps"},
+    el("span",{class:!S.trek?"now":""},el("b",{},"1"), " Iedereen kiest een pincode"),
+    el("span",{class:!S.trek&&allRegistered()?"now":""},el("b",{},"2"), " Maarten trekt"),
+    el("span",{class:S.trek?"now":""},el("b",{},"3"), " Iedereen draait"));
+  box.append(steps);
+  if(!S.me){ box.append(el("p",{class:"status",text:"Kies eerst hierboven wie je bent."})); }
+  else{
+    const me=byId[S.me], reg=S.regs[S.me];
+    if(!S.trek){
+      if(!reg || S.editPin){
+        box.append(pinForm("reg", (reg?"Kies een nieuwe geheime pincode, ":"Kies een geheime pincode, ")+me.name+". Minimaal 4 cijfers. Onthoud hem goed: zonder pincode kun je je lootje niet openen.",
+          "Bewaar pincode", async(a,b)=>{
+            if(a.length<4){ S.msg={t:"De pincode moet minimaal 4 tekens hebben."}; return render(); }
+            if(a!==b){ S.msg={t:"De twee pincodes zijn niet hetzelfde. Probeer het nog eens."}; return render(); }
+            if(S.trek){ S.msg={t:"De lootjes zijn net getrokken. Je kunt je pincode nu niet meer wijzigen."}; return render(); }
+            S.busy=true; S.msg={ok:true,t:"Bezig met opslaan…"}; render();
+            try{ const r=await makeRegistration(a); await store.register(S.me,r); S.msg={ok:true,t:"Je pincode is bewaard."}; S.editPin=false; }
+            catch(e){ S.msg={t:"Opslaan lukte niet. Probeer het nog eens."}; }
+            S.busy=false; render();
+          }, true));
+        if(reg) box.append(el("button",{class:"btn ghost",type:"button",onclick:()=>{S.editPin=false;S.msg=null;render();}},"Annuleren"));
+      }else{
+        const m=msgEl(); if(m) box.append(m);
+        box.append(el("p",{class:"status",text:"Je pincode staat klaar, "+me.name+". Wacht tot Maarten de lootjes trekt; dat kan zodra alle tien een pincode hebben."}));
+        box.append(el("button",{class:"btn ghost",type:"button",onclick:()=>{S.editPin=true;S.msg=null;render();}},"Pincode wijzigen"));
+      }
+    }else{
+      const known=S.mine[S.me];
+      if(!S.trek.lootjes[S.me]){
+        box.append(el("p",{class:"status",text:"Er is voor jou geen lootje gevonden. Vraag Maarten om opnieuw te trekken."}));
+      }else if(!known){
+        box.append(pinForm("open","Vul je pincode in en draai het rad, "+me.name+".","Draai het rad",async(pin)=>{
+          if(S.spinning||S.busy) return;
+          S.busy=true; S.msg={ok:true,t:"Lootje wordt geopend…"}; render();
+          try{
+            const rid=await openLootje(S.regs[S.me],pin,S.trek.lootjes[S.me]);
+            if(!byId[rid]) throw new Error("bad");
+            S.mine[S.me]=rid; S.msg=null; S.busy=false; render(); spinTo(S.me,rid);
+          }catch(e){
+            S.busy=false;
+            S.msg={t: e.message==="pin" ? "Die pincode klopt niet. Probeer het nog eens." : "Je lootje kon niet geopend worden. Vraag Maarten om opnieuw te trekken."};
+            render();
+          }
+        },false));
+        box.append(el("p",{class:"muted",text:"Pincode vergeten? Dan moet Maarten opnieuw trekken. Daarna kun je een nieuwe pincode kiezen."}));
+      }else{
+        box.append(el("p",{class:"status",text:"Je lootje is open, "+me.name+"."}));
+        box.append(el("div",{class:"row"},
+          el("button",{class:"btn",type:"button",onclick:()=>spinTo(S.me,known)},"Draai nog eens"),
+          el("button",{class:"btn ghost",type:"button",onclick:()=>showReveal(known)},"Toon mijn lootje"),
+          el("button",{class:"btn ghost",type:"button",onclick:()=>{delete S.mine[S.me];render();}},"Verberg")
+        ));
+      }
+    }
+  }
+  // Organisator
+  if(S.owner){
+    const org=el("div",{class:"confirm",style:"display:grid;gap:10px;justify-items:center;width:100%"});
+    org.append(el("div",{class:"eyebrow"},"Alleen voor Maarten"));
+    if(!S.trek){
+      const n=PEOPLE.filter(p=>S.regs[p.id]).length;
+      org.append(el("p",{class:"status",text: allRegistered()? "Iedereen heeft een pincode. Je kunt trekken. Ook jij kunt daarna niet zien wie wie heeft." : "Nog "+(10-n)+" "+((10-n)===1?"persoon moet":"mensen moeten")+" een pincode kiezen voordat je kunt trekken."}));
+      const b=el("button",{class:"btn gold",type:"button",id:"do-trek",onclick:doTrek},"Trek de lootjes");
+      if(!allRegistered()||S.busy) b.disabled=true;
+      org.append(b);
+    }else if(!S.confirmReset){
+      org.append(el("button",{class:"btn ghost",type:"button",onclick:()=>{S.confirmReset=true;render();}},"Opnieuw trekken"));
+    }else{
+      const n=Object.keys(S.revealed).length;
+      org.append(el("p",{class:"status",text:(n? n+" "+(n===1?"persoon heeft":"mensen hebben")+" hun lootje al gezien. ":"")+"Opnieuw trekken wist de huidige lootjes. Daarna kan iedereen zijn pincode wijzigen en trek je opnieuw."}));
+      org.append(el("div",{class:"row"},
+        el("button",{class:"btn ghost",type:"button",onclick:()=>{S.confirmReset=false;render();}},"Annuleren"),
+        el("button",{class:"btn",type:"button",onclick:async()=>{S.confirmReset=false; S.mine={}; try{ await store.clearTrek(); }catch(e){} render();}},"Ja, wis en trek opnieuw")));
+    }
+    box.append(org);
+  }else if(!S.trek && S.me){
+    box.append(el("p",{class:"muted",text:"Maarten trekt de lootjes zodra iedereen een pincode heeft."}));
+  }
+}
+function renderProgress(){
+  const box=$("#progress"); box.replaceChildren();
+  const lab=$("#progress-label");
+  if(!S.trek){
+    const n=PEOPLE.filter(p=>S.regs[p.id]).length;
+    lab.textContent=n+" van de "+PEOPLE.length+" hebben een pincode";
+    for(const p of PEOPLE) box.append(el("span",{class:"pill"+(S.regs[p.id]?" done":"")},p.name));
+  }else{
+    const n=PEOPLE.filter(p=>S.revealed[p.id]).length;
+    lab.textContent=n+" van de "+PEOPLE.length+" hebben gedraaid";
+    for(const p of PEOPLE) box.append(el("span",{class:"pill"+(S.revealed[p.id]?" done":"")},p.name));
+  }
+}
+async function doTrek(){
+  if(!S.owner||S.trek||!allRegistered()||S.busy) return;
+  S.busy=true; render();
+  try{
+    const ids=PEOPLE.map(p=>p.id), pr=derangement(ids), lootjes={};
+    for(const g of ids) lootjes[g]=await encryptFor(S.regs[g],pr[g]);
+    await store.setTrek({lootjes,jaar:2026,getrokken:Date.now()});
+  }catch(e){ showBanner("Trekken lukte niet. Probeer het nog eens.","warn"); }
+  S.busy=false; render();
+}
+
+/* ---------- wishlists ---------- */
+function renderLists(){
+  const box=$("#lists");
+  const active=document.activeElement && box.contains(document.activeElement) ? document.activeElement.id : null;
+  const drafts={}; box.querySelectorAll("input").forEach(i=>drafts[i.id]=i.value);
+  box.replaceChildren();
+  const target = S.me ? S.mine[S.me] : null;
+  const order=[...PEOPLE].sort((a,b)=>(b.id===S.me)-(a.id===S.me) || (b.id===target)-(a.id===target));
+  for(const p of order){
+    const items=(S.lists[p.id]&&Array.isArray(S.lists[p.id].items))?S.lists[p.id].items:[];
+    const claims=(S.claims[p.id]&&S.claims[p.id].claims)||{};
+    const mine=p.id===S.me;
+    const det=el("details",{class:"list",id:"list-"+p.id});
+    if(S.open.has(p.id) || (mine && !S.open.size)) det.open=true;
+    det.addEventListener("toggle",()=>{ det.open?S.open.add(p.id):S.open.delete(p.id); });
+    det.append(el("summary",{},
+      el("span",{class:"avatar",style:"background:"+SEG_COLORS[PEOPLE.indexOf(p)]},p.name[0]),
+      el("span",{class:"nm"},p.name),
+      mine?el("span",{class:"tag"},"Jij"):null,
+      p.id===target?el("span",{class:"tag red"},"Jouw lootje"):null,
+      el("span",{class:"cnt"},items.length?items.length+(items.length===1?" wens":" wensen"):"nog leeg")));
+    if(!items.length) det.append(el("p",{class:"empty",text: mine?"Je lijstje is nog leeg. Zet hieronder je eerste wens erin.":p.name+" heeft nog niets op het lijstje gezet."}));
+    else{
+      const ul=el("ul",{class:"items"});
+      for(const it of items){
+        const claimedBy = !mine ? (claims[it.id]||null) : null;
+        const li=el("li",{class:"item"+(claimedBy?" claimed":"")});
+        const meta=el("div",{class:"meta"});
+        if(it.prijs) meta.append(el("span",{},"± € "+it.prijs));
+        if(it.link && /^https?:\/\//i.test(it.link)) meta.append(el("a",{href:it.link,target:"_blank",rel:"noopener noreferrer"},"Bekijk link"));
+        if(claimedBy) meta.append(el("span",{},"🎁 "+(claimedBy===S.me?"Jij koopt dit":(byId[claimedBy]?.name||"Iemand")+" koopt dit")));
+        li.append(el("div",{class:"body"},el("div",{class:"t"},it.tekst),meta));
+        if(mine){
+          li.append(el("button",{class:"mini",type:"button",onclick:()=>store.saveList(p.id,items.filter(x=>x.id!==it.id)).catch(()=>{})},"Verwijder"));
+        }else if(S.me && (!claimedBy || claimedBy===S.me)){
+          li.append(el("button",{class:"mini"+(claimedBy?" on":""),type:"button",onclick:()=>store.claim(p.id,it.id,claimedBy?null:S.me).catch(()=>{})},claimedBy?"Toch niet":"Ik koop dit"));
+        }
+        ul.append(li);
+      }
+      det.append(ul);
+    }
+    if(mine){
+      const f=el("form",{class:"add",autocomplete:"off"},
+        el("input",{id:"add-tekst",placeholder:"Wat wil je graag?",required:"",maxlength:"140","aria-label":"Wens"}),
+        el("input",{id:"add-link",placeholder:"Link (mag leeg)",type:"text",inputmode:"url","aria-label":"Link"}),
+        el("input",{id:"add-prijs",placeholder:"€",inputmode:"decimal",maxlength:"8","aria-label":"Prijs in euro"}),
+        el("button",{class:"btn",type:"submit"},"Toevoegen"));
+      f.addEventListener("submit",ev=>{
+        ev.preventDefault();
+        const t=$("#add-tekst").value.trim(); if(!t) return;
+        let link=$("#add-link").value.trim(); if(link && !/^https?:\/\//i.test(link)) link="https://"+link;
+        const prijs=$("#add-prijs").value.trim().replace(/[^\d.,]/g,"");
+        const next=[...items,{id:Math.random().toString(36).slice(2,10),tekst:t.slice(0,140),link:link.slice(0,500),prijs}];
+        ["#add-tekst","#add-link","#add-prijs"].forEach(s=>$(s).value="");
+        store.saveList(p.id,next).then(()=>{ const i=$("#add-tekst"); if(i) i.focus(); }).catch(()=>{});
+      });
+      det.append(f);
+    }
+    box.append(det);
+  }
+  if(!S.me) box.prepend(el("p",{class:"muted",text:"Kies hierboven wie je bent om je eigen lijstje te vullen."}));
+  for(const k in drafts){ const i=document.getElementById(k); if(i) i.value=drafts[k]; }
+  if(active){ const a=document.getElementById(active); if(a) a.focus(); }
+}
+
+/* ---------- tabs ---------- */
+function setTab(t){
+  S.tab=t;
+  $("#tab-wiel").setAttribute("aria-selected",String(t==="wiel"));
+  $("#tab-lijst").setAttribute("aria-selected",String(t==="lijst"));
+  $("#view-wiel").hidden=t!=="wiel"; $("#view-lijst").hidden=t!=="lijst";
+}
+$("#tab-wiel").onclick=()=>setTab("wiel");
+$("#tab-lijst").onclick=()=>setTab("lijst");
+
+/* ---------- wheel ---------- */
+const wc=$("#wheel"), wx=wc.getContext("2d");
+let rot=0, W=0, dpr=1;
+const SEG=Math.PI*2/PEOPLE.length;
+function sizeWheel(){ dpr=Math.min(devicePixelRatio||1,2); const r=wc.getBoundingClientRect(); W=r.width; wc.width=Math.max(1,W*dpr); wc.height=Math.max(1,W*dpr); }
+function drawWheel(t){
+  if(W<60){ sizeWheel(); if(W<60) return; }
+  const c=W/2, R=W/2-4, inner=R-18;
+  wx.setTransform(dpr,0,0,dpr,0,0); wx.clearRect(0,0,W,W);
+  wx.beginPath(); wx.arc(c,c,R,0,Math.PI*2); wx.fillStyle="#6d1d26"; wx.fill();
+  wx.lineWidth=3; wx.strokeStyle="#f2c46b"; wx.stroke();
+  for(let i=0;i<PEOPLE.length;i++){
+    const a0=rot+i*SEG, a1=a0+SEG;
+    wx.beginPath(); wx.moveTo(c,c); wx.arc(c,c,inner,a0,a1); wx.closePath();
+    wx.fillStyle=SEG_COLORS[i]; wx.fill();
+    wx.strokeStyle="rgba(255,243,208,.55)"; wx.lineWidth=1.5; wx.stroke();
+    wx.save(); wx.translate(c,c); wx.rotate(a0+SEG/2);
+    wx.textAlign="right"; wx.textBaseline="middle";
+    wx.fillStyle=(SEG_COLORS[i]==="#d9a441"||SEG_COLORS[i]==="#c2803a")?"#3a2508":"#fff8e6";
+    wx.font="700 "+Math.max(11,W*0.042)+"px 'Bricolage Grotesque',system-ui,sans-serif";
+    wx.fillText(PEOPLE[i].name,inner-12,0);
+    wx.restore();
+  }
+  const n=30, speed=S.spinning?12:2.2;
+  for(let i=0;i<n;i++){
+    const a=i/n*Math.PI*2, x=c+Math.cos(a)*(R-9), y=c+Math.sin(a)*(R-9);
+    const on=reduced?true:(Math.sin(t/1000*speed*Math.PI+i*(S.spinning?0.9:Math.PI/1.5))>-0.2);
+    const col=["#ffe3a0","#ff8b93","#9ff0c6"][i%3];
+    wx.beginPath(); wx.arc(x,y,on?4.2:3.2,0,Math.PI*2);
+    if(on){ wx.shadowColor=col; wx.shadowBlur=12; wx.fillStyle=col; } else { wx.shadowBlur=0; wx.fillStyle="rgba(255,255,255,.18)"; }
+    wx.fill(); wx.shadowBlur=0;
+  }
+}
+let audio=null;
+function tick(){ try{ audio ||= new (window.AudioContext||window.webkitAudioContext)(); const o=audio.createOscillator(), g=audio.createGain();
+  o.type="triangle"; o.frequency.value=1500+Math.random()*300; g.gain.setValueAtTime(.05,audio.currentTime); g.gain.exponentialRampToValueAtTime(.0001,audio.currentTime+.05);
+  o.connect(g).connect(audio.destination); o.start(); o.stop(audio.currentTime+.06); }catch(e){} }
+function chime(){ try{ audio ||= new (window.AudioContext||window.webkitAudioContext)();
+  [784,988,1175,1568].forEach((f,i)=>{ const o=audio.createOscillator(), g=audio.createGain(), t0=audio.currentTime+i*.11;
+    o.type="sine"; o.frequency.value=f; g.gain.setValueAtTime(.0001,t0); g.gain.exponentialRampToValueAtTime(.08,t0+.02); g.gain.exponentialRampToValueAtTime(.0001,t0+.6);
+    o.connect(g).connect(audio.destination); o.start(t0); o.stop(t0+.65); }); }catch(e){} }
+function spinTo(me,target){
+  if(S.spinning) return;
+  const idx=PEOPLE.findIndex(p=>p.id===target); if(idx<0) return;
+  tick();
+  const TAU=Math.PI*2, jitter=(Math.random()-.5)*SEG*0.6;
+  const start=rot; let end=-Math.PI/2-(idx+.5)*SEG+jitter; while(end<start+TAU*6) end+=TAU;
+  const dur=reduced?600:5200, t0=performance.now();
+  S.spinning=true; render();
+  let lastSeg=-1;
+  const step=now=>{
+    const k=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-k,4);
+    rot=start+(end-start)*e;
+    const s=Math.floor(((-Math.PI/2-rot)%TAU+TAU)%TAU/SEG);
+    if(s!==lastSeg){ lastSeg=s; if(!reduced) tick(); }
+    if(k<1) requestAnimationFrame(step);
+    else{ rot=end%TAU; S.spinning=false; chime(); burst();
+      if(!S.revealed[me]) store.reveal(me).catch(()=>{});
+      render(); showReveal(target); }
+  };
+  requestAnimationFrame(step);
+}
+function showReveal(id){ $("#lootje-naam").textContent=byId[id]?.name||"?"; $("#reveal").hidden=false; $("#close-reveal").focus(); }
+$("#close-reveal").onclick=()=>{$("#reveal").hidden=true;};
+$("#reveal").addEventListener("click",e=>{ if(e.target.id==="reveal") $("#reveal").hidden=true; });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") $("#reveal").hidden=true; });
+$("#to-list").onclick=()=>{
+  $("#reveal").hidden=true; setTab("lijst");
+  const t=S.me&&S.mine[S.me];
+  if(t){ S.open.add(t); renderLists(); const d=document.getElementById("list-"+t); if(d) d.scrollIntoView({behavior:"smooth",block:"start"}); }
+};
+
+/* ---------- snow + sparkles ---------- */
+const sc=$("#snow"), sx=sc.getContext("2d");
+let flakes=[], sparks=[];
+function sizeSnow(){ const r=Math.min(devicePixelRatio||1,2); sc.width=innerWidth*r; sc.height=innerHeight*r; sx.setTransform(r,0,0,r,0,0);
+  const n=Math.round(Math.min(160,innerWidth*innerHeight/9000));
+  flakes=Array.from({length:n},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*2.6+.6,s:Math.random()*.6+.25,d:Math.random()*Math.PI*2})); }
+function burst(){ if(reduced) return; const r=wc.getBoundingClientRect(); const cx=r.left+r.width/2, cy=r.top+r.height/2;
+  for(let i=0;i<90;i++){ const a=Math.random()*Math.PI*2, v=Math.random()*7+2; sparks.push({x:cx,y:cy,vx:Math.cos(a)*v,vy:Math.sin(a)*v-2,life:1,c:["#f2c46b","#d9535e","#9ff0c6","#fff"][i%4]}); } }
+function drawSnow(t){
+  sx.clearRect(0,0,innerWidth,innerHeight); sx.fillStyle="rgba(255,255,255,.85)";
+  for(const f of flakes){ if(!reduced){ f.y+=f.s*(1+f.r*.3); f.x+=Math.sin(t/1600+f.d)*.35; if(f.y>innerHeight+5){f.y=-5;f.x=Math.random()*innerWidth;} }
+    sx.globalAlpha=.35+f.r/4; sx.beginPath(); sx.arc(f.x,f.y,f.r,0,Math.PI*2); sx.fill(); }
+  sx.globalAlpha=1; sparks=sparks.filter(p=>p.life>0);
+  for(const p of sparks){ p.x+=p.vx; p.y+=p.vy; p.vy+=.15; p.life-=.014; sx.globalAlpha=Math.max(0,p.life); sx.fillStyle=p.c; sx.fillRect(p.x,p.y,4,4); }
+  sx.globalAlpha=1;
+}
+function loop(t){ drawSnow(t); drawWheel(t); requestAnimationFrame(loop); }
+addEventListener("resize",()=>{ sizeSnow(); sizeWheel(); });
+sizeSnow(); sizeWheel(); requestAnimationFrame(loop);
+document.fonts && document.fonts.ready.then(()=>sizeWheel());
+
+/* ---------- boot ---------- */
+render();
+function renderOrgBar(F){
+  const bar=$("#orgbar"); if(!bar) return; bar.replaceChildren();
+  if(!F||!F.auth) return;
+  if(S.owner){
+    bar.append(el("span",{},"Ingelogd als organisator · "),el("button",{class:"linkbtn",type:"button",onclick:()=>F.signOut()},"Uitloggen"));
+  }else{
+    bar.append(el("button",{class:"linkbtn",type:"button",onclick:()=>F.signIn().catch(()=>showBanner("Inloggen lukte niet. Probeer het nog eens.","warn"))},"Inloggen als organisator"));
+  }
+}
+window.leguitStart = function(F){
+  if(F){
+    store=makeFirebaseStore(F);
+    F.onUser(u=>{ S.owner=!!(u&&u.email&&F.admins.includes(u.email.toLowerCase())); if(u&&!S.owner) showBanner("Je bent ingelogd met "+u.email+", maar dat is geen organisator-account.","warn"); S.confirmReset=false; render(); renderOrgBar(F); });
+    renderOrgBar(F);
+  }else{
+    store=makeLocalStore(); S.owner=true;
+    showBanner("Proefmodus: de machine is nog niet gekoppeld aan de online opslag. Alles wat je nu doet blijft alleen op dit apparaat.","warn");
+  }
+};
+})();
+</script>
+<script type="module" src="app.js"></script>
+</body>
+</html>
+
