@@ -1,13 +1,13 @@
 rules_version = '2';
 // Beveiligingsregels voor De Familie Leguit Lootjestrekmachine.
-// Plak deze tekst in Firebase > Firestore Database > Regels, en vervang het e-mailadres.
+// Staat ingesteld in Firebase > Firestore Database > Regels (project leguit-lootjes).
 service cloud.firestore {
   match /databases/{database}/documents {
 
     function isOrganisator() {
       return request.auth != null
         && request.auth.token.email_verified == true
-        && request.auth.token.email.lower() in ['JOUW-GMAIL@gmail.com'];
+        && request.auth.token.email.lower() in ['mail@maartenpost.com'];
     }
     function isPersoon(id) {
       return id in ['janwillem','gabrielle','willemijn','maarten','jesse','antoinette','sara','nine','jelle','janica'];
