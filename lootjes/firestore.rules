@@ -15,6 +15,14 @@ service cloud.firestore {
     function erIsGetrokken() {
       return exists(/databases/$(database)/documents/trekking/huidig);
     }
+    // Een lijstje is klaar bij minstens 3 cadeaus.
+    function klaar(id) {
+      return get(/databases/$(database)/documents/lijstjes/$(id)).data.items.size() >= 3;
+    }
+    function iedereenKlaar() {
+      return klaar('janwillem') && klaar('gabrielle') && klaar('willemijn') && klaar('maarten') && klaar('jesse')
+        && klaar('antoinette') && klaar('sara') && klaar('nine') && klaar('jelle') && klaar('janica');
+    }
 
     // De trekking: iedereen leest (alles is versleuteld), alleen de organisator schrijft.
     match /trekking/{doc} {
@@ -22,12 +30,14 @@ service cloud.firestore {
       allow write: if isOrganisator() && doc == 'huidig';
     }
 
-    // Pincodes (versleutelde sleutels): alleen te wijzigen zolang er nog niet getrokken is.
+    // Getrokken lootjes: één per persoon, alleen als iedereen minstens 3 cadeaus op zijn lijstje heeft,
+    // en een getrokken lootje kan niet meer worden overschreven. Alleen de organisator kan wissen.
     match /deelnemers/{id} {
       allow read: if true;
-      allow write: if isPersoon(id) && !erIsGetrokken()
-        && request.resource.data.keys().hasOnly(['pub','salt','iv','wrapped','iter','at'])
-        && request.resource.data.wrapped is string && request.resource.data.wrapped.size() < 4000;
+      allow create: if isPersoon(id)
+        && request.resource.data.keys().hasOnly(['wrapped','at'])
+        && request.resource.data.wrapped is string && request.resource.data.wrapped.size() < 200
+        && iedereenKlaar();
       allow delete: if isOrganisator();
     }
 
