@@ -515,6 +515,7 @@ function unlock(){
   else a.resume().then(()=>{ if(a.state==="running"){ unlocked=true; if(soundOn) startMusic(); } }).catch(()=>{});
 }
 ["pointerdown","touchend","click","keydown"].forEach(ev=>addEventListener(ev,unlock,{capture:true,passive:true}));
+window.leguitGeluid=()=>({context:audio?audio.state:"nog niet gestart",muziek:musicOn,geluidAan:soundOn,ontgrendeld:unlocked});
 document.addEventListener("visibilitychange",()=>{ if(!audio) return; if(document.hidden){ audio.suspend(); keepAlive&&keepAlive.pause(); } else if(soundOn){ audio.resume(); keepAlive&&keepAlive.play().catch(()=>{}); } });
 
 function spin(target){
