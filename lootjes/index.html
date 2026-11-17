@@ -37,6 +37,9 @@ body{background:radial-gradient(120% 70% at 50% 0%,#17392f 0%,var(--night) 65%) 
 .dots i.on{width:24px;background:var(--gold)}
 .dots i.done{background:var(--gold-soft);opacity:.6}
 .toplink{font:inherit;font-size:15px;font-weight:600;color:var(--gold-soft);background:none;border:none;padding:8px 4px;cursor:pointer}
+.topright{display:flex;align-items:center;gap:6px}
+.soundbtn{font:inherit;font-size:18px;line-height:1;width:36px;height:36px;border-radius:50%;border:1px solid rgba(242,196,107,.45);background:rgba(242,196,107,.12);color:var(--gold);cursor:pointer;display:grid;place-items:center}
+.soundbtn.off{text-decoration:line-through;text-decoration-thickness:2px;opacity:.55;border-color:var(--line);background:transparent;color:var(--snow-dim)}
 
 .screen{flex:1;display:flex;flex-direction:column;gap:18px;padding-top:6px;animation:in .45s cubic-bezier(.2,.8,.2,1)}
 .screen.still,.screen.still *{animation:none!important}
@@ -175,7 +178,7 @@ button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid
   <div class="top">
     <button class="back" id="back" type="button">‹ Terug</button>
     <div class="dots" id="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-    <button class="toplink" id="toLists" type="button">Lijstjes</button>
+    <div class="topright"><button class="soundbtn" id="sound" type="button" aria-label="Muziek en geluid uitzetten">♪</button><button class="toplink" id="toLists" type="button">Lijstjes</button></div>
   </div>
   <div id="banner" class="banner" hidden></div>
   <div id="heroSlot"></div>
@@ -264,9 +267,10 @@ function hideBanner(){$("#banner").hidden=true;}
 
 /* ---------- navigatie ---------- */
 const STEP={who:0,wish:1,spin:2,reveal:3,lists:1};
-function go(screen){S.screen=screen;S.confirmReset=false;render();window.scrollTo({top:0,behavior:"auto"});}
+function go(screen){if(S.screen!==screen&&screen!=="reveal")sparkle();S.screen=screen;S.confirmReset=false;render();window.scrollTo({top:0,behavior:"auto"});}
 $("#back").onclick=()=>{ if(S.spinning) return; if(S.screen==="wish") go("who"); else if(S.screen==="spin") go(hasDrawn(S.me)?"who":"wish"); else if(S.screen==="reveal") go("spin"); else if(S.screen==="lists") go(S.mine?"reveal":S.me?"wish":"who"); };
 $("#toLists").onclick=()=>{ if(!S.spinning) go("lists"); };
+$("#sound").onclick=()=>setSound(!soundOn);
 function soft(){ if(S.spinning||S.screen==="reveal") { renderChrome(); return; } const a=document.activeElement; if(a&&a.tagName==="INPUT"&&a.value){ renderChrome(); return; } render(); }
 
 function renderChrome(){
@@ -308,7 +312,7 @@ function hero(){
   return el("div",{class:"hero"},el("span",{class:"star"},"✦"),t1,el("div",{class:"t2"},"Lootjestrekmachine"),svg);
 }
 function pickName(id){
-  S.me=id; S.mine=null;
+  jingle(); S.me=id; S.mine=null;
   go(hasDrawn(id)||wishCount(id)>=MIN?"spin":"wish");
 }
 
@@ -416,10 +420,90 @@ function makeWheel(cv){
 }
 addEventListener("resize",()=>{wheel&&wheel.size();sizeSnow();});
 
-let audio=null;
-const ac=()=>{try{audio ||= new (window.AudioContext||window.webkitAudioContext)();if(audio.state==="suspended")audio.resume();}catch(e){}return audio;};
-function tick(){const a=ac();if(!a)return;try{const o=a.createOscillator(),g=a.createGain();o.type="triangle";o.frequency.value=1400+Math.random()*300;g.gain.setValueAtTime(.05,a.currentTime);g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+.05);o.connect(g).connect(a.destination);o.start();o.stop(a.currentTime+.06);}catch(e){}}
-function chime(){const a=ac();if(!a)return;try{[784,988,1175,1568].forEach((f,i)=>{const o=a.createOscillator(),g=a.createGain(),t0=a.currentTime+i*.11;o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(.08,t0+.02);g.gain.exponentialRampToValueAtTime(.0001,t0+.7);o.connect(g).connect(a.destination);o.start(t0);o.stop(t0+.75);});}catch(e){}}
+/* ---------- geluid: alles wordt live in de browser gemaakt ---------- */
+let audio=null, master=null, sfx=null, musicBus=null, verb=null;
+let soundOn=true; try{ soundOn=localStorage.getItem("leguit-geluid")!=="uit"; }catch(e){}
+function ac(){
+  try{
+    if(!audio){
+      audio=new (window.AudioContext||window.webkitAudioContext)();
+      master=audio.createGain(); master.gain.value=soundOn?1:0; master.connect(audio.destination);
+      // zachte galm: kunstmatige impulsrespons van uitstervende ruis
+      verb=audio.createConvolver(); const len=audio.sampleRate*2.6, ir=audio.createBuffer(2,len,audio.sampleRate);
+      for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3.2);}
+      verb.buffer=ir; const vg=audio.createGain(); vg.gain.value=.55; verb.connect(vg).connect(master);
+      sfx=audio.createGain(); sfx.gain.value=.9; sfx.connect(master); const ss=audio.createGain(); ss.gain.value=.35; sfx.connect(ss).connect(verb);
+      musicBus=audio.createGain(); musicBus.gain.value=.0001; const lp=audio.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=3200;
+      musicBus.connect(lp); lp.connect(master); const ms=audio.createGain(); ms.gain.value=.8; lp.connect(ms).connect(verb);
+    }
+    if(audio.state==="suspended") audio.resume();
+  }catch(e){}
+  return audio;
+}
+function setSound(on){
+  soundOn=on; try{localStorage.setItem("leguit-geluid",on?"aan":"uit");}catch(e){}
+  if(audio){ master.gain.setTargetAtTime(on?1:0,audio.currentTime,.15); }
+  if(on){ ac(); startMusic(); }
+  renderSoundBtn();
+}
+function renderSoundBtn(){ const b=$("#sound"); if(!b) return; b.textContent="♪"; b.setAttribute("aria-label",soundOn?"Muziek en geluid uitzetten":"Muziek en geluid aanzetten"); b.classList.toggle("off",!soundOn); }
+/* speeldoos-toon: grondtoon + boventonen die snel uitsterven */
+function bell(f,t,vol,dest,dur){
+  const a=audio; const g=a.createGain(); g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+.008); g.gain.exponentialRampToValueAtTime(.0001,t+(dur||1.6)); g.connect(dest);
+  [[1,1],[2.01,.35],[3.98,.12],[5.4,.05]].forEach(([m,v])=>{const o=a.createOscillator(),og=a.createGain();o.type="sine";o.frequency.value=f*m;og.gain.value=v;o.connect(og).connect(g);o.start(t);o.stop(t+(dur||1.6)+.05);});
+}
+function pad(freqs,t,dur,vol){
+  const a=audio; const g=a.createGain(); g.gain.setValueAtTime(.0001,t); g.gain.linearRampToValueAtTime(vol,t+dur*.35); g.gain.linearRampToValueAtTime(.0001,t+dur+.6); g.connect(musicBus);
+  freqs.forEach(f=>{[-4,4].forEach(dt=>{const o=a.createOscillator();o.type="triangle";o.frequency.value=f;o.detune.value=dt;o.connect(g);o.start(t);o.stop(t+dur+.7);});});
+}
+function tick(){ if(!soundOn) return; const a=ac(); if(!a) return; try{ bell(1900+Math.random()*250,a.currentTime,.035,sfx,.12); }catch(e){} }
+function chime(){ if(!soundOn) return; const a=ac(); if(!a) return; try{ duck(); [784,988,1175,1568,1976].forEach((f,i)=>bell(f,a.currentTime+i*.12,.08,sfx,2.2)); }catch(e){} }
+/* sleebelletjes bij het kiezen van een naam */
+function jingle(){ if(!soundOn) return; const a=ac(); if(!a) return; try{
+  for(let k=0;k<7;k++){ const t=a.currentTime+k*.045+Math.random()*.02;
+    const n=a.createBufferSource(), b=a.createBuffer(1,a.sampleRate*.06,a.sampleRate), d=b.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,4);
+    n.buffer=b; const hp=a.createBiquadFilter(); hp.type="bandpass"; hp.frequency.value=6500+Math.random()*2500; hp.Q.value=6; const g=a.createGain(); g.gain.value=.22; n.connect(hp).connect(g).connect(sfx); n.start(t);
+    bell(2600+Math.random()*900,t,.018,sfx,.35); }
+}catch(e){} }
+function pling(){ if(!soundOn) return; const a=ac(); if(!a) return; try{ bell(1047,a.currentTime,.06,sfx,1.2); bell(1568,a.currentTime+.09,.05,sfx,1.4); }catch(e){} }
+function plonk(){ if(!soundOn) return; const a=ac(); if(!a) return; try{ bell(392,a.currentTime,.05,sfx,.6); }catch(e){} }
+function sparkle(){ if(!soundOn) return; const a=ac(); if(!a) return; try{ [2093,2637,3136].forEach((f,i)=>bell(f,a.currentTime+i*.05,.012,sfx,.6)); }catch(e){} }
+function duck(){ if(!audio||!musicBus) return; const t=audio.currentTime; musicBus.gain.cancelScheduledValues(t); musicBus.gain.setTargetAtTime(.25,t,.2); musicBus.gain.setTargetAtTime(1,t+3,1.2); }
+
+/* "Stille Nacht" (Franz Gruber, 1818, publiek domein) als rustige speeldoos.
+   Noten in achtsten (6/8). Elke frase heeft een begeleidend akkoord. */
+const NOTE={C4:261.63,D4:293.66,E4:329.63,F4:349.23,G4:392,A4:440,B4:493.88,C5:523.25,D5:587.33,E5:659.25,F5:698.46,G5:783.99,A5:880,B5:987.77,C6:1046.5,D6:1174.66,E6:1318.51,F6:1396.91};
+const SONG=[
+ ["C",[["G5",3],["A5",1],["G5",2],["E5",6]]],["C",[["G5",3],["A5",1],["G5",2],["E5",6]]],
+ ["G",[["D6",4],["D6",2],["B5",6]]],["C",[["C6",4],["C6",2],["G5",6]]],
+ ["F",[["A5",4],["A5",2],["C6",3],["B5",1],["A5",2]]],["C",[["G5",3],["A5",1],["G5",2],["E5",6]]],
+ ["F",[["A5",4],["A5",2],["C6",3],["B5",1],["A5",2]]],["C",[["G5",3],["A5",1],["G5",2],["E5",6]]],
+ ["G",[["D6",4],["D6",2],["F6",3],["D6",1],["B5",2]]],["C",[["C6",6],["E6",6]]],
+ ["C",[["C6",3],["G5",1],["E5",2]]],["G",[["G5",3],["F5",1],["D5",2]]],["C",[["C5",12]]]
+];
+const CHORD={C:["C4","E4","G4"],G:["D4","G4","B4"],F:["C4","F4","A4"]};
+let musicOn=false, musicTimer=0;
+function startMusic(){
+  if(musicOn||!soundOn) return; const a=ac(); if(!a) return; musicOn=true;
+  musicBus.gain.cancelScheduledValues(a.currentTime); musicBus.gain.setTargetAtTime(1,a.currentTime,1.5);
+  const E=.36; // seconden per achtste: heel rustig
+  const play=()=>{
+    if(!soundOn){ musicOn=false; return; }
+    let t=audio.currentTime+.15;
+    for(const [ch,notes] of SONG){
+      const len=notes.reduce((n,[,d])=>n+d,0)*E;
+      pad(CHORD[ch].map(n=>NOTE[n]/2),t,len,.018);
+      let tt=t; for(const [n,d] of notes){ bell(NOTE[n]/2,tt,.045,musicBus,Math.max(1.4,d*E*1.6)); tt+=d*E; }
+      t+=len;
+    }
+    const total=t-audio.currentTime;
+    musicTimer=setTimeout(play,(total+4)*1000);
+  };
+  play();
+}
+/* muziek start bij de eerste tik (browsers staan geluid pas toe na een tik) */
+addEventListener("pointerdown",()=>{ if(soundOn){ ac(); startMusic(); } },{once:true,capture:true});
+document.addEventListener("visibilitychange",()=>{ if(!audio) return; if(document.hidden) audio.suspend(); else if(soundOn) audio.resume(); });
 
 function spin(target){
   if(S.spinning) return;
@@ -484,7 +568,7 @@ function listCard(id,mine,collapsible){
       if(it.link&&/^https?:\/\//i.test(it.link)) meta.append(el("a",{href:it.link,target:"_blank",rel:"noopener noreferrer"},"Bekijk"));
       if(by) meta.append(el("span",{},"🎁 "+(by===S.me?"Jij koopt dit":(byId[by]?.name||"Iemand")+" koopt dit")));
       li.append(el("div",{class:"body"},el("div",{class:"t"},it.tekst),meta));
-      if(mine) li.append(el("button",{class:"mini",type:"button",onclick:()=>store.saveList(id,items.filter(x=>x.id!==it.id)).catch(()=>{})},"Weg"));
+      if(mine) li.append(el("button",{class:"mini",type:"button",onclick:()=>{plonk();store.saveList(id,items.filter(x=>x.id!==it.id)).catch(()=>{});}},"Weg"));
       else if(S.me&&(!by||by===S.me)) li.append(el("button",{class:"mini"+(by?" on":""),type:"button",onclick:()=>store.claim(id,it.id,by?null:S.me).catch(()=>{})},by?"Toch niet":"Ik koop dit"));
       ul.append(li);
     }
@@ -500,7 +584,7 @@ function listCard(id,mine,collapsible){
       const prijs=$("#add-prijs").value.trim().replace(/[^\d.,]/g,"");
       const next=[...items,{id:Math.random().toString(36).slice(2,10),tekst:t.slice(0,140),link:link.slice(0,500),prijs}];
       ["#add-tekst","#add-link","#add-prijs"].forEach(q=>$(q).value="");
-      store.saveList(id,next).then(()=>{render();const i=$("#add-tekst");i&&i.focus();}).catch(()=>{});});
+      pling(); store.saveList(id,next).then(()=>{render();const i=$("#add-tekst");i&&i.focus();}).catch(()=>{});});
     body.push(f);
   }
   if(collapsible) return el("details",{class:"card",id:"list-"+id},el("summary",{},...head,el("span",{class:"cnt"},items.length?"· "+items.length+(items.length===1?" wens":" wensen"):"· leeg")),...body);
@@ -529,6 +613,7 @@ function loop(t){sx.clearRect(0,0,innerWidth,innerHeight);sx.fillStyle="#fff";
 sizeSnow();requestAnimationFrame(loop);
 
 /* ---------- start ---------- */
+renderSoundBtn();
 render();
 window.leguitStart=function(F){
   if(F){S.F=F;store=makeFirebaseStore(F);
