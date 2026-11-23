@@ -6,8 +6,22 @@
 <meta name="robots" content="noindex">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="theme-color" content="#0c1f1a">
-<meta property="og:title" content="De Familie Leguit Lootjestrekmachine">
-<meta property="og:description" content="Kies je naam, draai aan het rad en ontdek voor wie jij een kerstcadeautje koopt.">
+<meta name="description" content="Tik op je naam, draai aan het rad en ontdek voor wie jij een kerstcadeautje koopt.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Familie Leguit">
+<meta property="og:url" content="https://www.maartenpost.com/lootjes/">
+<meta property="og:title" content="De Familie Leguit Lootjestrekmachine 🎄">
+<meta property="og:description" content="Tik op je naam, draai aan het rad en ontdek voor wie jij een kerstcadeautje koopt.">
+<meta property="og:image" content="https://www.maartenpost.com/lootjes/preview.jpg">
+<meta property="og:image:secure_url" content="https://www.maartenpost.com/lootjes/preview.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Draaiwiel met de namen van de familie Leguit in kerstsfeer">
+<meta property="og:locale" content="nl_NL">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://www.maartenpost.com/lootjes/preview.jpg">
+<link rel="apple-touch-icon" href="preview.jpg">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%81%3C/text%3E%3C/svg%3E">
 <title>Familie Leguit Lootjestrekmachine</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -659,7 +673,7 @@ function loop(t){sx.clearRect(0,0,innerWidth,innerHeight);sx.fillStyle="#fff";
 sizeSnow();requestAnimationFrame(loop);
 
 /* ---------- automatisch bijwerken: oude versies in de browser-cache laden zichzelf opnieuw ---------- */
-const APP_V="2026-11-23b";
+const APP_V="2026-11-23c";
 async function checkVersion(){
   try{ const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"}); if(!r.ok) return; const j=await r.json();
     if(j&&j.v&&j.v!==APP_V&&!S.spinning&&S.screen!=="reveal"){ location.replace(location.pathname+"?v="+encodeURIComponent(j.v)); } }catch(e){}
