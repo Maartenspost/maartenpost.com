@@ -10,7 +10,7 @@ service cloud.firestore {
         && request.auth.token.email.lower() in ['mail@maartenpost.com'];
     }
     function isPersoon(id) {
-      return id in ['janwillem','gabrielle','willemijn','maarten','jesse','antoinette','sara','nine','jelle','janica'];
+      return id in ['janwillem','gabrielle','willemijn','maarten','jesse','antoinette','sara','nine','jelle'];
     }
     function erIsGetrokken() {
       return exists(/databases/$(database)/documents/trekking/huidig);
@@ -19,9 +19,13 @@ service cloud.firestore {
     function klaar(id) {
       return get(/databases/$(database)/documents/lijstjes/$(id)).data.items.size() >= 3;
     }
+    function geldigLootje() {
+      return request.resource.data.keys().hasOnly(['wrapped','at'])
+        && request.resource.data.wrapped is string && request.resource.data.wrapped.size() < 200;
+    }
     function iedereenKlaar() {
       return klaar('janwillem') && klaar('gabrielle') && klaar('willemijn') && klaar('maarten') && klaar('jesse')
-        && klaar('antoinette') && klaar('sara') && klaar('nine') && klaar('jelle') && klaar('janica');
+        && klaar('antoinette') && klaar('sara') && klaar('nine') && klaar('jelle');
     }
 
     // De trekking: iedereen leest (alles is versleuteld), alleen de organisator schrijft.
@@ -34,10 +38,9 @@ service cloud.firestore {
     // en een getrokken lootje kan niet meer worden overschreven. Alleen de organisator kan wissen.
     match /deelnemers/{id} {
       allow read: if true;
-      allow create: if isPersoon(id)
-        && request.resource.data.keys().hasOnly(['wrapped','at'])
-        && request.resource.data.wrapped is string && request.resource.data.wrapped.size() < 200
-        && iedereenKlaar();
+      allow create: if isPersoon(id) && geldigLootje() && iedereenKlaar();
+      // Een oude pincode-invoer (uit de eerste versie) mag één keer worden vervangen door een echt lootje.
+      allow update: if isPersoon(id) && ('pub' in resource.data) && geldigLootje() && iedereenKlaar();
       allow delete: if isOrganisator();
     }
 

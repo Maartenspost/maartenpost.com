@@ -189,7 +189,7 @@ button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid
 <script>
 (function(){
 "use strict";
-const PEOPLE=[{id:"janwillem",name:"Jan Willem"},{id:"gabrielle",name:"Gabrielle"},{id:"willemijn",name:"Willemijn"},{id:"maarten",name:"Maarten"},{id:"jesse",name:"Jesse"},{id:"antoinette",name:"Antoinette"},{id:"sara",name:"Sara"},{id:"nine",name:"Nine"},{id:"jelle",name:"Jelle"},{id:"janica",name:"Janica"}];
+const PEOPLE=[{id:"janwillem",name:"Jan Willem"},{id:"gabrielle",name:"Gabrielle"},{id:"willemijn",name:"Willemijn"},{id:"maarten",name:"Maarten"},{id:"jesse",name:"Jesse"},{id:"antoinette",name:"Antoinette"},{id:"sara",name:"Sara"},{id:"nine",name:"Nine"},{id:"jelle",name:"Jelle"}];
 const byId=Object.fromEntries(PEOPLE.map(p=>[p.id,p]));
 const SEG=["#b8323f","#1c4a3c","#d9a441","#24604d","#8e2431","#2f6b57","#c2803a","#1a3f34","#a62b38","#3a7a63"];
 const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -207,7 +207,8 @@ function derangement(ids){
 const seal=(g,r)=>btoa(unescape(encodeURIComponent(g+"|"+r))).split("").reverse().join("");
 const unseal=(g,code)=>{try{const t=decodeURIComponent(escape(atob(String(code).split("").reverse().join(""))));const [a,b]=t.split("|");return a===g&&byId[b]?b:null;}catch(e){return null;}};
 const IDS=PEOPLE.map(p=>p.id);
-const hasDrawn=id=>!!(S.draws[id]&&S.draws[id].wrapped);
+const validDraw=(g,d)=>!!(d&&d.wrapped&&unseal(g,d.wrapped));
+const hasDrawn=id=>validDraw(id,S.draws[id]);
 const MIN=3;
 const wishCount=id=>(S.lists[id]&&Array.isArray(S.lists[id].items))?S.lists[id].items.length:0;
 const allReady=()=>IDS.every(id=>wishCount(id)>=MIN);
@@ -215,7 +216,7 @@ const myTarget=()=>S.me&&hasDrawn(S.me)?unseal(S.me,S.draws[S.me].wrapped):null;
 /* Kies een lootje uit de pot. Nooit jezelf, en nooit zo dat de laatste persoon alleen zichzelf overhoudt. */
 function choose(me,draws){
   const taken=new Set(), drawn=new Set();
-  for(const g of IDS){ const d=draws[g]; if(d&&d.wrapped){ drawn.add(g); const r=unseal(g,d.wrapped); if(r) taken.add(r); } }
+  for(const g of IDS){ const d=draws[g]; if(validDraw(g,d)){ drawn.add(g); taken.add(unseal(g,d.wrapped)); } }
   const pool=IDS.filter(r=>r!==me&&!taken.has(r));
   const rest=IDS.filter(g=>g!==me&&!drawn.has(g));
   if(rest.length===1&&pool.includes(rest[0])) return rest[0];
@@ -232,7 +233,7 @@ function makeLocalStore(){
   setTimeout(fire,0);
   return {saveList:(id,items)=>{d.lijstjes[id]={items};return save();},
     claim:(id,itemId,who)=>{d.geclaimd[id] ||= {claims:{}};d.geclaimd[id].claims[itemId]=who;return save();},
-    draw:async me=>{ if(d.deelnemers[me]&&d.deelnemers[me].wrapped) return unseal(me,d.deelnemers[me].wrapped);
+    draw:async me=>{ if(validDraw(me,d.deelnemers[me])) return unseal(me,d.deelnemers[me].wrapped);
       const r=choose(me,d.deelnemers); d.deelnemers[me]={wrapped:seal(me,r),at:Date.now()}; try{localStorage.setItem(key,JSON.stringify(d));}catch(e){} return r; },
     flush:()=>{fire();},
     reset:()=>{d.deelnemers={};return save();}};
@@ -254,7 +255,7 @@ function makeFirebaseStore(F){
     draw:me=>guard(fs.runTransaction(db,async tx=>{
       const snaps=await Promise.all(IDS.map(id=>tx.get(docr("deelnemers",id))));
       const draws={}; snaps.forEach((sn,i)=>{ if(sn.exists()) draws[IDS[i]]=sn.data(); });
-      if(draws[me]&&draws[me].wrapped) return unseal(me,draws[me].wrapped);
+      if(validDraw(me,draws[me])) return unseal(me,draws[me].wrapped);
       const r=choose(me,draws);
       tx.set(docr("deelnemers",me),{wrapped:seal(me,r),at:Date.now()});
       return r;
@@ -329,8 +330,8 @@ function whoScreen(s){
     g.append(b);
   });
   s.append(g);
-  if(!ready){ const n=IDS.filter(id=>wishCount(id)>=MIN).length; s.append(el("p",{class:"muted"},"Eerst zet iedereen minstens 3 cadeaus op zijn verlanglijstje. "+n+" van de 10 zijn klaar. Daarna kan er getrokken worden."));}
-  else{ const n=IDS.filter(hasDrawn).length; s.append(el("p",{class:"muted"},n?n+" van de 10 hebben al getrokken ✓":"Alle lijstjes zijn klaar. Er kan getrokken worden!")); }
+  if(!ready){ const n=IDS.filter(id=>wishCount(id)>=MIN).length; s.append(el("p",{class:"muted"},"Eerst zet iedereen minstens 3 cadeaus op zijn verlanglijstje. "+n+" van de "+IDS.length+" zijn klaar. Daarna kan er getrokken worden."));}
+  else{ const n=IDS.filter(hasDrawn).length; s.append(el("p",{class:"muted"},n?n+" van de "+IDS.length+" hebben al getrokken ✓":"Alle lijstjes zijn klaar. Er kan getrokken worden!")); }
 }
 function orgPanel(){
   const o=el("div",{class:"org"},el("div",{class:"k"},"Alleen voor Maarten"));
