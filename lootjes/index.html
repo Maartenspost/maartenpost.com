@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="theme-color" content="#0c1f1a">
 <meta property="og:title" content="De Familie Leguit Lootjestrekmachine">
 <meta property="og:description" content="Kies je naam, draai aan het rad en ontdek voor wie jij een kerstcadeautje koopt.">
@@ -160,6 +161,10 @@ details.card[open] summary{margin-bottom:10px}
 .cnt{font-size:13px;color:var(--snow-dim);font-weight:400}
 
 .org{border:1px dashed rgba(242,196,107,.55);border-radius:18px;padding:16px;display:grid;gap:10px;background:rgba(12,31,26,.7)}
+.check{font-size:14px;padding:10px 12px;border-radius:12px;background:rgba(143,227,182,.1);border:1px solid rgba(143,227,182,.4);color:#bff0d4;text-align:center}
+.check.bad{background:rgba(217,83,94,.12);border-color:rgba(217,83,94,.6);color:#ffc2c7}
+.secret{display:grid;gap:6px;padding:12px;border-radius:12px;background:rgba(0,0,0,.25);border:1px solid var(--line)}
+.srow{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;font-size:16px}.srow span{color:var(--gold)}.srow b:last-child{text-align:right;color:var(--gold-soft)}
 .org .k{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:800;text-align:center}
 .progress{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
 .pill{font-size:12px;padding:3px 9px;border-radius:99px;border:1px solid var(--line);color:var(--snow-dim)}
@@ -236,6 +241,7 @@ function makeLocalStore(){
     draw:async me=>{ if(validDraw(me,d.deelnemers[me])) return unseal(me,d.deelnemers[me].wrapped);
       const r=choose(me,d.deelnemers); d.deelnemers[me]={wrapped:seal(me,r),at:Date.now()}; try{localStorage.setItem(key,JSON.stringify(d));}catch(e){} return r; },
     flush:()=>{fire();},
+    cleanup:ids=>{for(const id of ids) delete d.deelnemers[id]; return save();},
     reset:()=>{d.deelnemers={};return save();}};
 }
 function makeFirebaseStore(F){
@@ -261,6 +267,7 @@ function makeFirebaseStore(F){
       return r;
     })),
     flush:()=>{},
+    cleanup:async ids=>{for(const id of ids) await guard(fs.deleteDoc(docr("deelnemers",id)));},
     reset:async()=>{for(const id of IDS) if(S.draws[id]) await guard(fs.deleteDoc(docr("deelnemers",id)));}};
 }
 function showBanner(t){const b=$("#banner");b.textContent=t;b.hidden=false;}
@@ -333,10 +340,35 @@ function whoScreen(s){
   if(!ready){ const n=IDS.filter(id=>wishCount(id)>=MIN).length; s.append(el("p",{class:"muted"},"Eerst zet iedereen minstens 3 cadeaus op zijn verlanglijstje. "+n+" van de "+IDS.length+" zijn klaar. Daarna kan er getrokken worden."));}
   else{ const n=IDS.filter(hasDrawn).length; s.append(el("p",{class:"muted"},n?n+" van de "+IDS.length+" hebben al getrokken ✓":"Alle lijstjes zijn klaar. Er kan getrokken worden!")); }
 }
+function integrity(){
+  const pairs=[], seen={}, problems=[];
+  for(const g of IDS){ if(!hasDrawn(g)) continue; const r=unseal(g,S.draws[g].wrapped); pairs.push([g,r]);
+    if(r===g) problems.push(byId[g].name+" heeft zichzelf getrokken");
+    if(seen[r]) problems.push(byId[r].name+" is twee keer getrokken ("+byId[seen[r]].name+" en "+byId[g].name+")"); seen[r]=g; }
+  const notDrawn=IDS.filter(g=>!hasDrawn(g)), pot=IDS.filter(r=>!seen[r]);
+  // kan de rest nog goed aflopen? (nooit alleen jezelf overhouden)
+  if(notDrawn.length===1&&pot.length===1&&pot[0]===notDrawn[0]) problems.push(byId[notDrawn[0]].name+" kan alleen zichzelf nog trekken");
+  if(notDrawn.length!==pot.length) problems.push("Aantal in de pot klopt niet");
+  const stale=IDS.filter(g=>S.draws[g]&&!hasDrawn(g));
+  return {pairs,notDrawn,pot,problems,stale};
+}
 function orgPanel(){
   const o=el("div",{class:"org"},el("div",{class:"k"},"Alleen voor Maarten"));
   const pr=el("div",{class:"progress"}); for(const p of PEOPLE) pr.append(el("span",{class:"pill"+(hasDrawn(p.id)?" done":"")},p.name));
-  o.append(el("p",{class:"muted"},"Groen = heeft al getrokken. Wie wie heeft, zie jij ook niet."),pr);
+  const ck=integrity();
+  o.append(el("p",{class:"muted"},"Groen = heeft al getrokken."),pr);
+  o.append(el("div",{class:"check"+(ck.problems.length?" bad":"")},
+    ck.problems.length?"⚠️ "+ck.problems.join(" · "):"✓ Controle in orde: niemand heeft zichzelf, niemand is dubbel getrokken, de pot klopt ("+ck.pairs.length+" van "+IDS.length+" getrokken)."));
+  if(ck.stale.length) o.append(el("button",{class:"btn ghost",type:"button",onclick:async()=>{try{await store.cleanup(ck.stale);}catch(e){}render();}},"Oude invoer opruimen ("+ck.stale.map(id=>byId[id].name).join(", ")+")"));
+  if(!S.showSecret){
+    o.append(el("button",{class:"btn ghost",type:"button",id:"show-secret",onclick:()=>{S.showSecret=true;render();}},"🔒 Toon geheim overzicht"));
+  }else{
+    const tb=el("div",{class:"secret"});
+    if(!ck.pairs.length) tb.append(el("p",{class:"muted"},"Nog niemand heeft getrokken."));
+    for(const [g,r] of ck.pairs) tb.append(el("div",{class:"srow"},el("b",{},byId[g].name),el("span",{},"→"),el("b",{},byId[r].name)));
+    if(ck.notDrawn.length) tb.append(el("p",{class:"muted"},"Nog niet getrokken: "+ck.notDrawn.map(id=>byId[id].name).join(", ")));
+    o.append(tb,el("button",{class:"btn ghost",type:"button",onclick:()=>{S.showSecret=false;render();}},"Verberg overzicht"));
+  }
   if(!S.confirmReset) o.append(el("button",{class:"link",type:"button",onclick:()=>{S.confirmReset=true;render();}},"Alles wissen en opnieuw beginnen"));
   else o.append(el("p",{class:"muted"},"Weet je het zeker? Alle getrokken lootjes worden gewist en iedereen moet opnieuw trekken."),
     el("div",{class:"stack"},el("button",{class:"btn",type:"button",onclick:async()=>{S.confirmReset=false;S.mine=null;try{await store.reset();}catch(e){}render();}},"Ja, alles wissen"),
@@ -625,6 +657,14 @@ function loop(t){sx.clearRect(0,0,innerWidth,innerHeight);sx.fillStyle="#fff";
     if(p.w>4){p.rot+=.08;sx.save();sx.translate(p.x,p.y);sx.rotate(p.rot);sx.fillRect(-p.w/2,-p.h/2,p.w,p.h*Math.abs(Math.cos(p.rot)));sx.restore();}else sx.fillRect(p.x,p.y,4,4);}
   sx.globalAlpha=1;requestAnimationFrame(loop);}
 sizeSnow();requestAnimationFrame(loop);
+
+/* ---------- automatisch bijwerken: oude versies in de browser-cache laden zichzelf opnieuw ---------- */
+const APP_V="2026-11-23b";
+async function checkVersion(){
+  try{ const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"}); if(!r.ok) return; const j=await r.json();
+    if(j&&j.v&&j.v!==APP_V&&!S.spinning&&S.screen!=="reveal"){ location.replace(location.pathname+"?v="+encodeURIComponent(j.v)); } }catch(e){}
+}
+checkVersion(); document.addEventListener("visibilitychange",()=>{ if(!document.hidden) checkVersion(); }); setInterval(checkVersion,120000);
 
 /* ---------- start ---------- */
 renderSoundBtn();
