@@ -11,6 +11,54 @@
 <meta property="og:image" content="https://www.maartenpost.com/img/snapshots-kenia-4.jpg">
 <meta property="og:url" content="https://www.maartenpost.com/">
 <link rel="canonical" href="https://www.maartenpost.com/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": "https://www.maartenpost.com/#maarten-post",
+      "name": "Maarten Post",
+      "url": "https://www.maartenpost.com/",
+      "image": "https://www.maartenpost.com/img/maarten-post-televisieregisseur.jpg",
+      "jobTitle": "Television Director",
+      "description": "Maarten Post is an independent multicamera television director (regisseur) with over 20 years of experience, known for De Verraders (The Traitors), Last One Standing, Real Boys on Safari, Wolves, Survive Your Family, Holland's Got Talent, Boer Zoekt Vrouw and The Tribute: Battle of the Bands.",
+      "hasOccupation": {
+        "@type": "Occupation",
+        "name": "Television director",
+        "alternateName": ["Regisseur", "Multicamera director", "Item director"]
+      },
+      "knowsAbout": ["Television directing", "Multicamera directing", "Adventure reality", "Reality television", "Documentary", "Branded content"],
+      "homeLocation": [
+        {"@type": "Place", "name": "Amsterdam, Netherlands"},
+        {"@type": "Place", "name": "Cape Town, South Africa"}
+      ],
+      "nationality": {"@type": "Country", "name": "Netherlands"},
+      "sameAs": [
+        "https://www.linkedin.com/in/maartenspost/",
+        "https://www.instagram.com/_maartenpost/",
+        "https://www.facebook.com/maartensebastiaanpost"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://www.maartenpost.com/#website",
+      "url": "https://www.maartenpost.com/",
+      "name": "Maarten Post",
+      "alternateName": "Maarten Post · Director",
+      "about": {"@id": "https://www.maartenpost.com/#maarten-post"},
+      "publisher": {"@id": "https://www.maartenpost.com/#maarten-post"}
+    },
+    {
+      "@type": "ProfilePage",
+      "@id": "https://www.maartenpost.com/#profile",
+      "url": "https://www.maartenpost.com/",
+      "name": "Maarten Post · Director",
+      "mainEntity": {"@id": "https://www.maartenpost.com/#maarten-post"}
+    }
+  ]
+}
+</script>
 <meta property="og:image:width" content="1400"><meta property="og:image:height" content="805">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Maarten Post · Director">
@@ -352,7 +400,7 @@ body,.band,.dark,.light,nav,body::before,.overlay,.ppage,.pbar,.viewer{backgroun
 <section class="band light" id="about"><div class="wrap">
   <hr class="rule">
   <div class="row aboutrow"><p class="intro mid">about</p><p class="lbl lead"><span>05.</span><span>About</span></p>
-    <figure class="portrait"><img id="portrait" alt="Portrait of Maarten Post" width="1600" height="900"></figure>
+    <figure class="portrait"><img id="portrait" src="img/maarten-post-televisieregisseur.jpg" alt="Maarten Post, television director (regisseur)" width="1600" height="900"></figure>
     <div class="bio" style="display:flex;flex-direction:column;gap:22px"><p class="lead" style="max-width:34ch">Maarten Post is an independent director with over 20 years of experience in the industry. Based between Amsterdam and Cape Town, he has directed content for international networks and streaming platforms including Amazon Prime, Insight TV, and Spike TV, as well as for Dutch broadcasters, networks, and streaming services such as RTL, SBS, BNN, KRO-NCRV, MTV, and Videoland.</p>
     <p style="max-width:44ch;opacity:.85">His work spans a wide range of formats, from entertainment and documentary to factual and branded content, but his true expertise lies in adventure reality, with productions shot in locations ranging from the Colombian jungle and the Kenyan savanna to the mountains of Armenia and the streets of Japan.</p></div></div>
   <div class="facts4" id="facts4"></div>
@@ -441,7 +489,7 @@ const ICONS=["g-sun","g-river","g-branch","g-acacia","g-spark","g-frame"];
 const roleKey=r=>r==="Director"||r==="Multicamera director"?"Director":r==="Item director"?"Item director":r==="Reporter"?"Reporter":"Other";
 
 
-document.getElementById("portrait").src=src("img/about-portrait.jpg");
+document.getElementById("portrait").src=src("img/maarten-post-televisieregisseur.jpg");
 /* Mail */
 $("#mail").textContent=EMAIL;$("#mail").href="mailto:"+EMAIL;
 
